@@ -264,14 +264,6 @@ jobs:
           . venv/bin/activate
           pre-commit run --hook-stage manual check-json5 --all-files
 
-      - name: Register check executables problem matcher
-        run: |
-          echo "::add-matcher::.github/workflows/matchers/check-executables-have-shebangs.json"
-      - name: Run executables check
-        run: |
-          . venv/bin/activate
-          pre-commit run --hook-stage manual check-executables-have-shebangs --all-files
-
       - name: Register codespell problem matcher
         run: |
           echo "::add-matcher::.github/workflows/matchers/codespell.json"
