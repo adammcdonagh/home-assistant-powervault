@@ -1,0 +1,27 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Device is already configured"
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error"
+    },
+    "step": {
+      "pick_unit": {
+        "data": {
+          "unit_id": "Select your unit from the list below:",
+          "unit_name": "Give your unit a name"
+        },
+        "description": "Give the unit a friendly name, and select the one you want from the list below. If you only own one Powervault then just select that"
+      },
+      "user": {
+        "data": {
+          "api_key": "API Key"
+        },
+        "description": "Enter the API key provided by Powervault. This is only given out after you've paid the \u00a360 fee."
+      }
+    }
+  }
+}

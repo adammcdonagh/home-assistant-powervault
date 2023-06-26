@@ -1,0 +1,318 @@
+name: Test & Linting
+
+env:
+  DEFAULT_PYTHON: "3.11"
+  PRE_COMMIT_CACHE: ~/.cache/pre-commit
+  KEY_PREFIX: base-venv
+  CACHE_VERSION: 1
+# yamllint disable-line rule:truthy
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize]
+    branches: main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prepare-base:
+    name: Prepare base dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      python-key: ${{ steps.generate-python-key.outputs.key }}
+      pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.5.2
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Generate partial Python venv restore key
+        id: generate-python-key
+        run: >-
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+            hashFiles('pyproject.toml', 'requirements_test_pre_commit.txt',
+          'requirements.txt') }}" >>
+          $GITHUB_OUTPUT
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.3.1
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            steps.generate-python-key.outputs.key }}
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install -U pip setuptools wheel
+          pip install -U -r requirements_test_pre_commit.txt
+      - name: Generate pre-commit restore key
+        id: generate-pre-commit-key
+        run: >-
+          echo "key=pre-commit-${{ env.CACHE_VERSION }}-${{
+            hashFiles('.pre-commit-config.yaml') }}" >> $GITHUB_OUTPUT
+      - name: Restore pre-commit environment
+        id: cache-precommit
+        uses: actions/cache@v3.3.1
+        with:
+          path: ${{ env.PRE_COMMIT_CACHE }}
+          key: >-
+            ${{ runner.os }}-${{ steps.generate-pre-commit-key.outputs.key }}
+      - name: Install pre-commit dependencies
+        if: steps.cache-precommit.outputs.cache-hit != 'true'
+        run: |
+          . venv/bin/activate
+          pre-commit install --install-hooks
+
+  lint-ruff:
+    name: ruff
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: prepare-base
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.5.2
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.3.1
+        with:
+          path: venv
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            needs.prepare-base.outputs.python-key }}
+      - name: Restore pre-commit environment
+        id: cache-precommit
+        uses: actions/cache@v3.3.1
+        with:
+          path: ${{ env.PRE_COMMIT_CACHE }}
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+      - name: Register ruff problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/ruff.json"
+      - name: Run ruff
+        run: |
+          . venv/bin/activate
+          pre-commit run --hook-stage manual ruff --all-files --show-diff-on-failure
+
+  lint-black:
+    name: black
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: prepare-base
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.5.2
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.3.1
+        with:
+          path: venv
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            needs.prepare-base.outputs.python-key }}
+      - name: Restore pre-commit environment
+        id: cache-precommit
+        uses: actions/cache@v3.3.1
+        with:
+          path: ${{ env.PRE_COMMIT_CACHE }}
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+      - name: Run black checks
+        run: |
+          . venv/bin/activate
+          pre-commit run --hook-stage manual black --all-files --show-diff-on-failure
+
+  pylint:
+    name: Check pylint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: prepare-base
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.5.2
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.3.1
+        with:
+          path: venv
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            needs.prepare-base.outputs.python-key }}
+      - name: Restore pre-commit environment
+        id: cache-precommit
+        uses: actions/cache@v3.3.1
+        with:
+          path: ${{ env.PRE_COMMIT_CACHE }}
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+      - name: Register pylint problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/pylint.json"
+      - name: Run pylint checks
+        run: |
+          . venv/bin/activate
+          pre-commit run --hook-stage manual pylint --all-files
+
+  mypy:
+    name: Check mypy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: prepare-base
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.5.2
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.3.1
+        with:
+          path: venv
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            needs.prepare-base.outputs.python-key }}
+      - name: Restore pre-commit environment
+        id: cache-precommit
+        uses: actions/cache@v3.3.1
+        with:
+          path: ${{ env.PRE_COMMIT_CACHE }}
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+      - name: Register mypy problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/mypy.json"
+      - name: Run mypy checks
+        run: |
+          . venv/bin/activate
+          pre-commit run mypy --all-files
+
+  lint-other:
+    name: Run other linters
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: prepare-base
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.5.2
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.3.1
+        with:
+          path: venv
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            needs.prepare-base.outputs.python-key }}
+      - name: Restore pre-commit environment
+        id: cache-precommit
+        uses: actions/cache@v3.3.1
+        with:
+          path: ${{ env.PRE_COMMIT_CACHE }}
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+
+      - name: Register yamllint problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/yamllint.json"
+      - name: Run yamllint
+        run: |
+          . venv/bin/activate
+          pre-commit run --hook-stage manual yamllint --all-files --show-diff-on-failure
+
+      - name: Register check-json problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/check-json5.json"
+      - name: Run check-json5
+        run: |
+          . venv/bin/activate
+          pre-commit run --hook-stage manual check-json5 --all-files
+
+      - name: Register check executables problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/check-executables-have-shebangs.json"
+      - name: Run executables check
+        run: |
+          . venv/bin/activate
+          pre-commit run --hook-stage manual check-executables-have-shebangs --all-files
+
+      - name: Register codespell problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/codespell.json"
+      - name: Run codespell
+        run: |
+          . venv/bin/activate
+          pre-commit run --show-diff-on-failure --hook-stage manual codespell --all-files
+
+      - name: Run prettier
+        run: |
+          . venv/bin/activate
+          pre-commit run --hook-stage manual prettier --all-files
+
+      - name: Run bandit (fully)
+        run: |
+          . venv/bin/activate
+          pre-commit run --hook-stage manual bandit --all-files --show-diff-on-failure
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: prepare-base
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.5.2
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.3.1
+        with:
+          path: venv
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            needs.prepare-base.outputs.python-key }}
+      - name: Run tests
+        run: |
+          . venv/bin/activate
+          python -m pytest

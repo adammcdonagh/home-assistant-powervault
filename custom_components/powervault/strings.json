@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Enter the API key provided by Powervault. This is only given out after you've paid the £60 fee.",
+        "data": {
+          "api_key": "[%key:common::config_flow::data::api_key%]"
+        }
+      },
+      "pick_unit": {
+        "description": "Give the unit a friendly name, and select the one you want from the list below. If you only own one Powervault then just select that",
+        "data": {
+          "unit_name": "Give your unit a name",
+          "unit_id": "Select your unit from the list below:"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    }
+  }
+}

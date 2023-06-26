@@ -1,0 +1,9 @@
+-r requirements.txt
+pre-commit
+pylint
+mypy
+ruff
+black
+pydantic
+homeassistant
+types-requests

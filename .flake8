@@ -1,0 +1,6 @@
+[flake8]
+# Ignore  E501 (line too long) - black sorts this out
+ignore = E501
+extend-ignore = W503
+exclude =
+  .venv

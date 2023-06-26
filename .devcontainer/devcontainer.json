@@ -1,0 +1,70 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-in-docker
+{
+  "name": "Python 3",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "args": {
+      "VARIANT": "3.11",
+      // Options
+      "INSTALL_NODE": "false"
+    }
+  },
+  "features": {
+    "docker-in-docker": "latest"
+  },
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "pip install -r requirements_dev.txt && pre-commit install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "ms-python.vscode-pylance",
+        "ms-python.python",
+        "esbenp.vscode-prettier",
+        "ms-azuretools.vscode-docker",
+        "ms-python.isort",
+        "yzhang.markdown-all-in-one",
+        "ms-python.pylint",
+        "matangover.mypy",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff"
+      ],
+      "settings": {
+        "python.testing.unittestArgs": ["-v", "-s", "tests", "-p", "test_*.py"],
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": ["."],
+        "python.analysis.typeCheckingMode": "off",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": false,
+        "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+        "python.linting.pycodestylePath": "/usr/local/bin/pycodestyle",
+        "python.linting.pydocstylePath": "/usr/local/bin/pydocstyle",
+        "python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
+        "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+        "http.systemCertificates": true,
+        "python.formatting.provider": "black",
+        "files.associations": {
+          "*.json": "jsonc"
+        },
+        "files.autoSave": "off", // needed for editor.formatOnSave
+        "files.insertFinalNewline": true, // needed for pre-commit check
+        "files.trimTrailingWhitespace": true,
+        "editor.formatOnSave": true,
+        "editor.rulers": [88],
+        "isort.args": ["--profile", "black"],
+        "pylint.severity": {
+          "convention": "Warning",
+          "info": "Warning"
+        },
+        "python.testing.pytestEnabled": true,
+        "editor.formatOnType": true
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "python.testing.unittestArgs": ["-v", "-s", "tests", "-p", "test_*.py"],
+  "python.testing.unittestEnabled": false,
+  "python.analysis.typeCheckingMode": "off",
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": false,
+  "http.systemCertificates": true,
+  "python.formatting.provider": "black",
+  "files.associations": {
+    "*.json": "jsonc"
+  },
+  "files.autoSave": "off", // needed for editor.formatOnSave
+  "files.insertFinalNewline": true, // needed for pre-commit check
+  "files.trimTrailingWhitespace": true,
+  "editor.formatOnSave": true,
+  "editor.rulers": [88],
+  "isort.args": ["--profile", "black"],
+  "pylint.severity": {
+    "convention": "Warning",
+    "refactor": "Warning",
+    "info": "Warning"
+  },
+  "python.testing.pytestEnabled": true,
+  "editor.formatOnType": true,
+  "python.testing.pytestArgs": ["."],
+  "python.linting.pylintCategorySeverity.refactor": "Warning"
+}
