@@ -7,3 +7,4 @@ black
 pydantic
 homeassistant
 types-requests
+pytest
