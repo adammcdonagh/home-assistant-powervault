@@ -122,7 +122,25 @@ def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData:
     """Process and update powervault data."""
     data = client.get_data(unit_id)
 
+    # Check that there is some data
+    if not data or len(data) == 0 or "instant_soc" not in data[0]:
+        raise ServerError(
+            "Failed to get data from Powervault API. Missing data from API call."
+        )
+
     totals = client.get_data(unit_id, period="today")
+
+    if not totals or len(totals) == 0 or "instant_soc" not in totals[0]:
+        raise ServerError(
+            "Failed to get totals data from Powervault API. Missing data from API call."
+        )
+
+    # Check for None values in any of the total data. Use instant_battery as a test
+    for row in totals:
+        # Remove anything that is None
+        if "instant_battery" not in row or row["instant_battery"] is None:
+            totals.remove(row)
+
     totals = client.get_kwh(totals)
 
     battery_state = client.get_battery_state(unit_id)

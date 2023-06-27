@@ -10,8 +10,8 @@ This custom component for Home Assistant allows you to monitor the status of you
 
 This integration can be installed directly via HACS. To install:
 
-* [Add the repository](https://my.home-assistant.io/redirect/hacs_repository/?owner=adammcdonagh&repository=home-assistant-powervault&category=integration) to your HACS installation
-* Click `Download`
+- [Add the repository](https://my.home-assistant.io/redirect/hacs_repository/?owner=adammcdonagh&repository=home-assistant-powervault&category=integration) to your HACS installation
+- Click `Download`
 
 ## Home Assistant Setup
 
