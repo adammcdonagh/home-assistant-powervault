@@ -128,9 +128,13 @@ class PowervaultChargeSensor(PowervaultEntity, SensorEntity):
         return f"{self.base_unique_id}_charge"
 
     @property
-    def native_value(self) -> int:
+    def native_value(self) -> float | None:
         """Get the current value in percentage."""
-        return round(self.data.charge)
+        try:
+            return round(self.data.charge)  # type: ignore[no-any-return]
+        except (KeyError, TypeError):
+            pass
+        return None
 
 
 class PowervaultEnergySensor(PowervaultEntity, SensorEntity):
@@ -153,9 +157,13 @@ class PowervaultEnergySensor(PowervaultEntity, SensorEntity):
         self.json_key = json_key
 
     @property
-    def native_value(self) -> float:
+    def native_value(self) -> float | None:
         """Get the current value in percentage."""
-        return round(getattr(self.data, self.json_key) / 1000)  # type: ignore[no-any-return]
+        try:
+            return round(getattr(self.data, self.json_key) / 1000)  # type: ignore[no-any-return]
+        except (KeyError, TypeError):
+            pass
+        return None
 
 
 class PowervaultPowerSensor(PowervaultEntity, SensorEntity):
@@ -178,6 +186,10 @@ class PowervaultPowerSensor(PowervaultEntity, SensorEntity):
         self.json_key = json_key
 
     @property
-    def native_value(self) -> float:
+    def native_value(self) -> float | None:
         """Get the current value in percentage."""
-        return round(self.data.totals[self.json_key] / 1000, 2)  # type: ignore[no-any-return]
+        try:
+            return round(self.data.totals[self.json_key] / 1000, 2)  # type: ignore[no-any-return]
+        except (KeyError, TypeError):
+            pass
+        return None
