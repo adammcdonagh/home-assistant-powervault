@@ -120,13 +120,21 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods
 
 def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData:
     """Process and update powervault data."""
-    data = client.get_data(unit_id)
+    data = client.get_data(unit_id, period="past-hour")
 
     # Check that there is some data
     if not data or len(data) == 0 or "instant_soc" not in data[0]:
         raise ServerError(
             "Failed to get data from Powervault API. Missing data from API call."
         )
+
+    # Loop through data from the last entry
+    # As soon as data is found where the instant_solar value is not None
+    # remove all other values from the array except that
+    for entry in reversed(data):
+        if entry.get('instant_solar') is not None:
+            data = [entry]
+            break
 
     totals = client.get_data(unit_id, period="today")
 
