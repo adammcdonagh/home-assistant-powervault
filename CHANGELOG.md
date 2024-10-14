@@ -1,3 +1,7 @@
+# v1.2.2
+
+- Bump version of powervaultpy. Reverts back to using old API for battery state changes
+
 # v1.2.1
 
 - Fix linting issues

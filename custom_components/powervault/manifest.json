@@ -8,8 +8,8 @@
   "issue_tracker": "https://github.com/adammcdonagh/home-assistant-powervault/issues",
   "homekit": {},
   "iot_class": "cloud_polling",
-  "requirements": ["powervaultpy==1.0.2"],
-  "version": "1.2.1",
+  "requirements": ["powervaultpy==1.0.3"],
+  "version": "1.2.2",
   "ssdp": [],
   "zeroconf": []
 }
