@@ -1,4 +1,5 @@
 """Support for Powervault charge status selection."""
+
 from __future__ import annotations
 
 from homeassistant.components.select import SelectEntity
@@ -22,7 +23,9 @@ async def async_setup_entry(
     async_add_entities([PowervaultSelectEntity(powervault_data)])
 
 
-class PowervaultSelectEntity(PowervaultEntity, SelectEntity):
+class PowervaultSelectEntity(
+    PowervaultEntity, SelectEntity
+):  # pylint: disable=abstract-method
     """Representation of a Powervault select entity."""
 
     def __init__(

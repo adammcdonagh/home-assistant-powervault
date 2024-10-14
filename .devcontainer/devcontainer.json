@@ -12,9 +12,6 @@
       "INSTALL_NODE": "false"
     }
   },
-  "features": {
-    "docker-in-docker": "latest"
-  },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
   // Use 'postCreateCommand' to run commands after the container is created.
@@ -22,7 +19,6 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "GitHub.copilot",
         "ms-python.vscode-pylance",
         "ms-python.python",
         "esbenp.vscode-prettier",

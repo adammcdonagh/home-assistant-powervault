@@ -81,7 +81,13 @@ def _call_base_info(client: PowerVault, unit_id: str) -> PowervaultBaseInfo:
         id=unit_data["id"], model=unit_data["model"], eprom_id=unit_data["epromId"]
     )
 
+
 def get_kwh(data: dict) -> dict:
+    """Convert the W reading to kWh over the 5 minute period.
+
+    :param data: The data to convert
+    :return: The converted data
+    """
     # List of attributes to retrieve from data dict
     attributes = [
         "batteryInputFromGrid",
@@ -94,16 +100,16 @@ def get_kwh(data: dict) -> dict:
         "solarExported",
         "solarGenerated",
     ]
-    # For each attribute, loop through the data dict and conver the W reading to kWh over the 5 minute period
-    totals = {}
+    # For each attribute, loop through the data dict and convert the W reading to kWh over the 5 minute period
+    totals: dict[str, float] = {}
     for row in data:
         for attribute in attributes:
             if attribute in row:
                 if attribute not in totals or not totals[attribute]:
                     totals[attribute] = 0
                 value = row[attribute]
-                if value:
-                    totals[attribute] += round(value / 1000 * (5/60), 2)
+                if value := row[attribute]:
+                    totals[attribute] += round(value / 1000 * (5 / 60), 2)
 
     return totals
 
@@ -158,7 +164,7 @@ def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData:
             break
 
     if need_to_get_past_hour:
-        _LOGGER.info(f"Getting past-hour because at least one value is None")
+        _LOGGER.info("Getting past-hour because at least one value is None")
         past_hour_data = client.get_data(unit_id, period="past-hour")
         _LOGGER.info(f"Data: {data}")
 
@@ -171,10 +177,14 @@ def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData:
             if data[0][key] is None:
                 current_index = len(past_hour_data) - 1
                 while current_index >= 0:
-                    current_value = past_hour_data[current_index][key]
-                    if current_value is not None:
+
+                    if (
+                        current_value := past_hour_data[current_index][key]
+                    ) is not None:
                         data[0][key] = current_value
-                        _LOGGER.info(f"Replacing value of {key} to populated_entry from {past_hour_data[current_index]['time']} with value {current_value}")
+                        _LOGGER.info(
+                            f"Replacing value of {key} to populated_entry from {past_hour_data[current_index]['time']} with value {current_value}"
+                        )
                         break
                     current_index -= 1
 
@@ -220,9 +230,9 @@ def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData:
         instant_grid=data[0]["instant_grid"],
         solarGenerated=data[0]["solarGenerated"],
         solarConsumption=data[0]["solarConsumption"],
-        instant_solar=data[0]["instant_solar"]
-        if data[0]["instant_solar"] > 10000
-        else 0,
+        instant_solar=(
+            data[0]["instant_solar"] if data[0]["instant_solar"] > 10000 else 0
+        ),
         battery_state=battery_state,
         totals=totals,
     )
