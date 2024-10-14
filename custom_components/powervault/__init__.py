@@ -177,13 +177,14 @@ def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData:
             if data[0][key] is None:
                 current_index = len(past_hour_data) - 1
                 while current_index >= 0:
-
                     if (
                         current_value := past_hour_data[current_index][key]
                     ) is not None:
                         data[0][key] = current_value
                         _LOGGER.info(
-                            f"Replacing value of {key} to populated_entry from {past_hour_data[current_index]['time']} with value {current_value}"
+                            f"Replacing value of {key} to populated_entry from"
+                            f" {past_hour_data[current_index]['time']} with value"
+                            f" {current_value}"
                         )
                         break
                     current_index -= 1
