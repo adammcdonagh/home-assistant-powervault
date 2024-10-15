@@ -1,3 +1,7 @@
+# v1.2.3
+
+- Add HACS validation
+
 # v1.2.2
 
 - Bump version of powervaultpy. Reverts back to using old API for battery state changes

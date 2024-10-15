@@ -3,13 +3,13 @@
   "name": "Powervault",
   "codeowners": ["@adammcdonagh"],
   "config_flow": true,
-  "dependencies": [],
   "documentation": "https://github.com/adammcdonagh/home-assistant-powervault",
-  "issue_tracker": "https://github.com/adammcdonagh/home-assistant-powervault/issues",
+  "dependencies": [],
   "homekit": {},
   "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/adammcdonagh/home-assistant-powervault/issues",
   "requirements": ["powervaultpy==1.0.3"],
-  "version": "1.2.2",
   "ssdp": [],
+  "version": "1.2.3",
   "zeroconf": []
 }
