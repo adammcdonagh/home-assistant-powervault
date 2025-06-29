@@ -1,3 +1,7 @@
+# v1.2.4
+
+- Bump [powervaultpy](https://pypi.org/project/powervaultpy/) version to v1.1.0
+
 # v1.2.3
 
 - Add HACS validation
