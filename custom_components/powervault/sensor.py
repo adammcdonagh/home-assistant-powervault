@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -13,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util.dt import start_of_local_day
 from powervaultpy import PowerVault
 
 from .const import DOMAIN, POWERVAULT_COORDINATOR
@@ -169,7 +171,7 @@ class PowervaultEnergySensor(PowervaultEntity, SensorEntity):
 class PowervaultPowerSensor(PowervaultEntity, SensorEntity):
     """Representation of an Powervault Power sensor."""
 
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     _attr_device_class = SensorDeviceClass.ENERGY
 
@@ -193,3 +195,8 @@ class PowervaultPowerSensor(PowervaultEntity, SensorEntity):
         except (KeyError, TypeError):
             pass
         return None
+
+    @property
+    def last_reset(self) -> datetime | None:
+        """Return the time when the sensor was last reset (start of today)."""
+        return start_of_local_day()
