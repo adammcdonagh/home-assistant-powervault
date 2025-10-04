@@ -89,7 +89,7 @@ jobs:
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@4.2.0
+        uses: actions/cache@4.3.0
         with:
           path: venv
           fail-on-cache-miss: true
