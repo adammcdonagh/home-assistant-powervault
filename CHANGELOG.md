@@ -1,3 +1,7 @@
+# v1.2.5
+
+- Fix power sensor state class and add last_reset for HA Energy Card compatibility
+
 # v1.2.4
 
 - Bump [powervaultpy](https://pypi.org/project/powervaultpy/) version to v1.1.0
