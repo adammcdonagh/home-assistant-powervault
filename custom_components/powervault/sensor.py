@@ -199,4 +199,4 @@ class PowervaultPowerSensor(PowervaultEntity, SensorEntity):
     @property
     def last_reset(self) -> datetime | None:
         """Return the time when the sensor was last reset (start of today)."""
-        return start_of_local_day()  # type: ignore[no-any-return]
+        return utcnow().replace(hour=0, minute=0, second=0, microsecond=0)  # type: ignore[no-any-return]
