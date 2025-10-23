@@ -169,7 +169,7 @@ class PowervaultEnergySensor(PowervaultEntity, SensorEntity):
 class PowervaultPowerSensor(PowervaultEntity, SensorEntity):
     """Representation of an Powervault Power sensor."""
 
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     _attr_device_class = SensorDeviceClass.ENERGY
 
