@@ -1,4 +1,5 @@
 """Constants for the Powervault integration."""
+
 from typing import Final
 
 DOMAIN = "powervault"
