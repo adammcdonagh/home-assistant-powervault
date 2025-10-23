@@ -2,7 +2,11 @@
 
 ![installation_badge](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://analytics.home-assistant.io/custom_integrations.json&query=$.powervault.total)
 
-This custom component for Home Assistant allows you to monitor the status of your Powervault PV3 battery. This uses the _paid_ API offered by Powervault. To obtain an API key, you first need to contact Powervault directly and pay for access. This integration is useless without it.
+This custom component for Home Assistant allows you to monitor the status of your Powervault P3, P4 or P5 battery. This uses the _paid_ API offered by Powervault. To obtain an API key, you first need to contact Powervault directly and pay for access. This integration is useless without it.
+
+Based on the Swagger docs hosted at https://app.swaggerhub.com/apis-docs/Powervault/PowervaultP3/
+
+This integration has been confirmed as working with P3 & P5 batteries. P4 should work just the same based on the API specs.
 
 ### HACS
 
