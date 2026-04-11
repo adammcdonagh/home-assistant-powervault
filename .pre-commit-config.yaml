@@ -34,7 +34,6 @@ repos:
     rev: 26.3.1
     hooks:
       - id: black
-        stages: [manual]
         args:
           - --check
   - repo: https://github.com/codespell-project/codespell
