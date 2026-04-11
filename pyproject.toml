@@ -86,10 +86,10 @@ ignore = [
     "E731",  # do not assign a lambda expression, use a def
 ]
 
-[tool.ruff.lint.pydocstyle]
+[tool.ruff.pydocstyle]
 convention = "google"
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.per-file-ignores]
 
-[tool.ruff.lint.mccabe]
+[tool.ruff.mccabe]
 max-complexity = 25
