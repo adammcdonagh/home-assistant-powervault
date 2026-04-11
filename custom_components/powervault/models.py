@@ -38,7 +38,7 @@ class PowervaultData:  # pylint: disable=too-many-instance-attributes
     solarGenerated: float
     solarConsumption: float
     instant_solar: float
-    battery_state: str
+    battery_state: str | None
     totals: dict
 
 

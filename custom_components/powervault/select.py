@@ -6,7 +6,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from powervaultpy import VALID_STATUSES, PowerVault
+from powervaultpy import VALID_STATUSES
 
 from .const import DOMAIN
 from .entity import PowervaultEntity
@@ -19,7 +19,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Powervault charge status select entities."""
-    powervault_data: PowerVault = hass.data[DOMAIN][config_entry.entry_id]
+    powervault_data: PowervaultRuntimeData = hass.data[DOMAIN][config_entry.entry_id]
     async_add_entities([PowervaultSelectEntity(powervault_data)])
 
 
@@ -38,15 +38,24 @@ class PowervaultSelectEntity(
         self._attr_name = "Powervault Charge Status"
         self._attr_unique_id = f"{self.base_unique_id}_charge_status"
         self._attr_options = VALID_STATUSES
+        self._attr_current_option: str | None = None
 
         self._async_update_attrs()
 
-    @callback  # type: ignore[misc]
+    @property
+    def available(self) -> bool:
+        """Return whether the entity is available."""
+        return super().available and self.data.battery_state is not None
+
+    @callback  # type: ignore[untyped-decorator]
     def _async_update_attrs(self) -> None:
         """Update entity attributes."""
-        self._attr_current_option = self.data.battery_state
+        if self.data.battery_state is not None:
+            self._attr_current_option = self.data.battery_state
+        else:
+            self._attr_current_option = None
 
-    @callback  # type: ignore[misc]
+    @callback  # type: ignore[untyped-decorator]
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         self._async_update_attrs()
