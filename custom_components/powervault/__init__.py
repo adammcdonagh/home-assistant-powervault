@@ -214,7 +214,12 @@ def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData:
 
     _LOGGER.info(f"Totals: {totals}")
 
-    battery_state = client.get_battery_state(unit_id)
+    battery_state = None
+    try:
+        battery_state = client.get_battery_state(unit_id)
+    except Exception as err: # pylint: disable=broad-except
+        _LOGGER.error(f"Failed to get battery state: {err}")
+        _LOGGER.error("Missing battery state indicates there's no schedule available and no overrides in place. Setting value to Unavailable")
 
     return PowervaultData(
         charge=data[0]["instant_soc"],
