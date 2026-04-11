@@ -150,7 +150,7 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods
         raise RuntimeError("unreachable")
 
 
-def _fetch_powervault_data( # pylint: disable=too-many-branches
+def _fetch_powervault_data(  # pylint: disable=too-many-branches
     client: PowerVault, unit_id: str
 ) -> PowervaultData:
     """Process and update powervault data."""
