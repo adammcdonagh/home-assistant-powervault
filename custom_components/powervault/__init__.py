@@ -150,7 +150,7 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods
         raise RuntimeError("unreachable")
 
 
-def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData:
+def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData: # pylint: disable=too-many-branches
     """Process and update powervault data."""
     data = client.get_data(unit_id)
 
@@ -214,12 +214,12 @@ def _fetch_powervault_data(client: PowerVault, unit_id: str) -> PowervaultData:
 
     _LOGGER.info(f"Totals: {totals}")
 
-    battery_state = None
+    battery_state = "UNKNOWN"
     try:
         battery_state = client.get_battery_state(unit_id)
     except Exception as err: # pylint: disable=broad-except
         _LOGGER.error(f"Failed to get battery state: {err}")
-        _LOGGER.error("Missing battery state indicates there's no schedule available and no overrides in place. Setting value to Unavailable")
+        _LOGGER.error("Missing battery state indicates there's no schedule available and no overrides in place. Setting value to UNKNOWN")
 
     return PowervaultData(
         charge=data[0]["instant_soc"],
