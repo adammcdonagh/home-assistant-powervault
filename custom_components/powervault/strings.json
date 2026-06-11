@@ -53,5 +53,15 @@
       "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]",
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Powervault P3 options",
+        "data": {
+          "poll_interval": "Polling interval (seconds)"
+        }
+      }
+    }
   }
 }

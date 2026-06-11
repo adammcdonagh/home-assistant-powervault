@@ -13,6 +13,11 @@ POWERVAULT_HTTP_SESSION: Final = "http_session"
 
 UPDATE_INTERVAL = 30
 
+CONF_POLL_INTERVAL: Final = "poll_interval"
+DEFAULT_POLL_INTERVAL: Final = 30
+MIN_POLL_INTERVAL: Final = 10
+MAX_POLL_INTERVAL: Final = 60
+
 CONF_MODEL: Final = "model"
 CONF_IP_ADDRESS: Final = "ip_address"
 

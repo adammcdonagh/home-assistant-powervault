@@ -6,7 +6,7 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
@@ -14,7 +14,17 @@ from homeassistant.helpers.selector import selector
 from powervaultpy import PowerVault
 from powervaultpy.powervault import RequestError, ServerError
 
-from .const import CONF_IP_ADDRESS, CONF_MODEL, DOMAIN, MODEL_LEGACY_P3, MODEL_NEWER
+from .const import (
+    CONF_IP_ADDRESS,
+    CONF_MODEL,
+    CONF_POLL_INTERVAL,
+    DEFAULT_POLL_INTERVAL,
+    DOMAIN,
+    MAX_POLL_INTERVAL,
+    MIN_POLL_INTERVAL,
+    MODEL_LEGACY_P3,
+    MODEL_NEWER,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -82,9 +92,9 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
 async def validate_legacy_unit(hass: HomeAssistant, ip_address: str) -> None:
     """Validate connection to a legacy P3 Powervault unit via the health endpoint."""
-    client = PowerVault("")
+    client = PowerVault(local_ip=ip_address)
     try:
-        response = await hass.async_add_executor_job(client.get_health, ip_address)
+        response = await hass.async_add_executor_job(client.get_health)
     except (RequestError, ServerError) as exc:
         raise CannotConnect from exc
 
@@ -92,10 +102,55 @@ async def validate_legacy_unit(hass: HomeAssistant, ip_address: str) -> None:
         raise CannotConnect
 
 
+class PowervaultOptionsFlow(OptionsFlow):  # pylint: disable=too-few-public-methods
+    """Handle options for Powervault (legacy P3 only)."""
+
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        """Initialise the options flow."""
+        self._config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Show the poll-interval option."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        current = self._config_entry.options.get(
+            CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL
+        )
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_POLL_INTERVAL, default=current): selector(
+                    {
+                        "number": {
+                            "min": MIN_POLL_INTERVAL,
+                            "max": MAX_POLL_INTERVAL,
+                            "step": 1,
+                            "unit_of_measurement": "s",
+                            "mode": "slider",
+                        }
+                    }
+                ),
+            }
+        )
+        return self.async_show_form(step_id="init", data_schema=schema)
+
+
 class PowervaultConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
     """Handle a config flow for Powervault."""
 
     VERSION = 2
+
+    @staticmethod
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> PowervaultOptionsFlow | None:
+        """Return options flow only for legacy P3 entries."""
+        if config_entry.data.get(CONF_MODEL) == MODEL_LEGACY_P3:
+            return PowervaultOptionsFlow(config_entry)
+        return None
+
     unit_id: str
     unit_name: str
     account_info: dict[str, Any]

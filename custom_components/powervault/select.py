@@ -63,11 +63,12 @@ class PowervaultSelectEntity(
 
     async def async_select_option(self, option: str) -> None:
         """Change the current preset."""
-        if local_ip := self.coordinator.config_entry.data.get(CONF_IP_ADDRESS):
+        if self.coordinator.config_entry.data.get(CONF_IP_ADDRESS):
+            # unit_id is ignored by the library when local_ip is set on the client
             await self.coordinator.hass.async_add_executor_job(
                 self.powervault.set_battery_state,
+                None,
                 option,
-                local_ip,
             )
         else:
             await self.coordinator.hass.async_add_executor_job(

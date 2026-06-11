@@ -35,3 +35,19 @@ This integration can be installed directly via HACS. To install:
 **⚠ WARNING: Changing battery status**
 
 _IMPORTANT_ Changing the battery status will override any schedule you have have configured in the Powervault portal. The override sets the battery to that status for the next 24hrs. Only change the status if you are controlling it using Home Assistant only and don't want to use the scheduler in the Powervault portal
+
+## Polling interval (Legacy P3 only)
+
+P3 units communicate over your local network, so the integration can poll much more frequently than the cloud API. The default is **30 seconds**, and you can adjust this between **10 and 60 seconds** via the integration's **Configure** button in `Settings > Devices & Services`.
+
+> [!WARNING] > **Avoid setting the polling interval too low without configuring the recorder.**
+> Every poll produces a new state for each Powervault sensor. At 10-second intervals that is up to **8,640 state changes per sensor per day**. Be aware this will rapidly inflate your database. Before reducing the interval below the default, consider either:
+>
+> - Excluding the Powervault entities from the recorder in your `configuration.yaml`:
+>   ```yaml
+>   recorder:
+>     exclude:
+>       entity_globs:
+>         - sensor.powervault_*
+>   ```
+> - Or only including the specific sensors you actually need in long-term history.

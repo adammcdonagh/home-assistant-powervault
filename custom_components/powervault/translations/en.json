@@ -53,5 +53,15 @@
         "description": "Give the unit a friendly name, and select the one you want from the list below. If you only own one Powervault then just select that"
       }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Powervault P3 options",
+        "data": {
+          "poll_interval": "Polling interval (seconds)"
+        }
+      }
+    }
   }
 }
