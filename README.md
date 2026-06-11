@@ -1,5 +1,11 @@
 # Home Assistant Powervault
 
+> [!WARNING] > **Action required if upgrading from a previous version.**
+> Powervault have sunset the legacy cloud API for P3 units. After upgrading this integration, Home Assistant will mark it as requiring reconfiguration and you **must** complete the steps below before it will resume working.
+>
+> - **P3 owners:** you will be asked to confirm your model and enter the local IP address of your unit. Ensure your Powervault P3 is reachable on your local network before proceeding.
+> - **P4/P5 owners:** you will be asked to confirm your model. Your existing API key remains valid and no other changes are needed.
+
 ![installation_badge](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://analytics.home-assistant.io/custom_integrations.json&query=$.powervault.total)
 
 This custom component for Home Assistant allows you to monitor the status of your Powervault P3, P4 or P5 battery. This uses the _paid_ API offered by Powervault. To obtain an API key, you first need to contact Powervault directly and pay for access. This integration is useless without it.

@@ -9,11 +9,20 @@ import requests
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from powervaultpy import PowerVault
 from powervaultpy.powervault import ServerError
 
-from .const import DOMAIN, POWERVAULT_COORDINATOR, UPDATE_INTERVAL
+from .const import (
+    CONF_IP_ADDRESS,
+    CONF_MODEL,
+    DOMAIN,
+    MODEL_LEGACY_P3,
+    MODEL_UNKNOWN,
+    POWERVAULT_COORDINATOR,
+    UPDATE_INTERVAL,
+)
 from .models import PowervaultBaseInfo, PowervaultData, PowervaultRuntimeData
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,13 +32,27 @@ PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SELECT]
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Powervault from a config entry."""
     hass.data.setdefault(DOMAIN, {})
-    api_key = entry.data["api_key"]
-    unit_id = entry.data["unit_id"]
-    client = PowerVault(api_key)
+
+    if (model := entry.data.get(CONF_MODEL, MODEL_UNKNOWN)) == MODEL_UNKNOWN:
+        raise ConfigEntryAuthFailed(
+            "Powervault model not configured. Please reconfigure this integration."
+        )
 
     http_session = requests.Session()
 
-    base_info = await hass.async_add_executor_job(_fetch_base_info, client, unit_id)
+    if model == MODEL_LEGACY_P3:
+        local_ip = entry.data[CONF_IP_ADDRESS]
+        client = PowerVault("")
+        unit_id = None
+        base_info = await hass.async_add_executor_job(
+            _fetch_base_info_legacy, client, local_ip
+        )
+    else:
+        api_key = entry.data["api_key"]
+        unit_id = entry.data["unit_id"]
+        local_ip = None
+        client = PowerVault(api_key)
+        base_info = await hass.async_add_executor_job(_fetch_base_info, client, unit_id)
 
     runtime_data = PowervaultRuntimeData(
         api_changed=False,
@@ -39,7 +62,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         api_instance=client,
     )
 
-    manager = PowervaultDataManager(hass, client, unit_id, runtime_data)
+    manager = PowervaultDataManager(
+        hass, client, unit_id, runtime_data, local_ip=local_ip
+    )
 
     coordinator = DataUpdateCoordinator(
         hass,
@@ -60,6 +85,33 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate old config entry to current version."""
+    _LOGGER.debug(
+        "Migrating Powervault config entry from version %s", config_entry.version
+    )
+
+    if config_entry.version == 1:
+        # v1 entries predate the model field. We cannot determine from stored data
+        # alone whether this is a P3 or a newer unit, so we stamp "unknown".
+        # async_setup_entry will raise ConfigEntryAuthFailed which triggers a reauth
+        # flow that asks the user to identify their model and (for P3) enter their IP.
+        hass.config_entries.async_update_entry(
+            config_entry,
+            data={**config_entry.data, CONF_MODEL: MODEL_UNKNOWN},
+            version=2,
+        )
+        _LOGGER.info(
+            "Migrated Powervault config entry to version 2; user must confirm model"
+        )
+        return True
+
+    _LOGGER.error(
+        "Cannot migrate Powervault config entry from version %s", config_entry.version
+    )
+    return False
+
+
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
@@ -72,6 +124,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 def _fetch_base_info(client: PowerVault, unit_id: str) -> PowervaultBaseInfo:
     return _call_base_info(client, unit_id)
+
+
+def _fetch_base_info_legacy(client: PowerVault, local_ip: str) -> PowervaultBaseInfo:
+    uid = client.get_unit_id(local_ip)
+    return PowervaultBaseInfo(id=uid, model="Powervault P3", eprom_id="")
 
 
 def _call_base_info(client: PowerVault, unit_id: str) -> PowervaultBaseInfo:
@@ -117,16 +174,18 @@ def get_kwh(data: dict) -> dict:
 class PowervaultDataManager:  # pylint: disable=too-few-public-methods
     """Class to manager powervault data."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         hass: HomeAssistant,
         client: PowerVault,
-        unit_id: str,
+        unit_id: str | None,
         runtime_data: PowervaultRuntimeData,
+        local_ip: str | None = None,
     ) -> None:
         """Init the data manager."""
         self.hass = hass
         self.unit_id = unit_id
+        self.local_ip = local_ip
         self.runtime_data = runtime_data
         self.client = client
 
@@ -142,7 +201,9 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods
         _LOGGER.debug("Updating data")
         for _ in range(2):
             try:
-                data = _fetch_powervault_data(self.client, self.unit_id)
+                data = _fetch_powervault_data(
+                    self.client, self.unit_id, local_ip=self.local_ip
+                )
             except ServerError as err:
                 raise UpdateFailed("Unable to fetch data from powervault") from err
 
@@ -151,6 +212,58 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods
 
 
 def _fetch_powervault_data(  # pylint: disable=too-many-branches
+    client: PowerVault, unit_id: str | None, local_ip: str | None = None
+) -> PowervaultData:
+    """Process and update powervault data."""
+    if local_ip:
+        return _fetch_powervault_data_legacy(client, local_ip)
+    return _fetch_powervault_data_cloud(client, unit_id)  # type: ignore[arg-type]
+
+
+def _fetch_powervault_data_legacy(client: PowerVault, local_ip: str) -> PowervaultData:
+    """Fetch data from a legacy P3 Powervault unit via the local REST API."""
+    data = client.get_data(local_ip=local_ip)
+
+    _LOGGER.info(f"Local data: {data}")
+
+    if not data or len(data) == 0 or "instant_soc" not in data[0]:
+        raise ServerError(
+            "Failed to get data from Powervault local API. Missing data from response."
+        )
+
+    battery_state = "UNKNOWN"
+    try:
+        battery_state = client.get_battery_state(local_ip=local_ip)
+    except Exception as err:  # pylint: disable=broad-except
+        _LOGGER.error(f"Failed to get battery state: {err}")
+        _LOGGER.error(
+            "Missing battery state indicates there's no schedule available and no overrides in place. Setting value to UNKNOWN"
+        )
+
+    return PowervaultData(
+        charge=data[0]["instant_soc"],
+        batteryInputFromGrid=data[0]["batteryInputFromGrid"],
+        batteryInputFromSolar=data[0]["batteryInputFromSolar"],
+        batteryOutputConsumedByHome=data[0]["batteryOutputConsumedByHome"],
+        batteryOutputExported=data[0]["batteryOutputExported"],
+        homeConsumed=data[0]["homeConsumed"],
+        gridConsumedByHome=data[0]["gridConsumedByHome"],
+        solarConsumedByHome=data[0]["solarConsumedByHome"],
+        solarExported=data[0]["solarExported"],
+        instant_battery=data[0]["instant_battery"],
+        instant_demand=data[0]["instant_demand"],
+        instant_grid=data[0]["instant_grid"],
+        solarGenerated=data[0]["solarGenerated"],
+        solarConsumption=data[0]["solarConsumption"],
+        instant_solar=(
+            data[0]["instant_solar"] if data[0]["instant_solar"] > 10000 else 0
+        ),
+        battery_state=battery_state,
+        totals={},
+    )
+
+
+def _fetch_powervault_data_cloud(  # pylint: disable=too-many-branches
     client: PowerVault, unit_id: str
 ) -> PowervaultData:
     """Process and update powervault data."""

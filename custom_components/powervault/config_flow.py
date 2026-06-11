@@ -14,13 +14,34 @@ from homeassistant.helpers.selector import selector
 from powervaultpy import PowerVault
 from powervaultpy.powervault import RequestError, ServerError
 
-from .const import DOMAIN
+from .const import CONF_IP_ADDRESS, CONF_MODEL, DOMAIN, MODEL_LEGACY_P3, MODEL_NEWER
 
 _LOGGER = logging.getLogger(__name__)
+
+STEP_MODEL_DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_MODEL): selector(
+            {
+                "select": {
+                    "options": [
+                        {"value": MODEL_LEGACY_P3, "label": "Legacy P3"},
+                        {"value": MODEL_NEWER, "label": "Newer Powervault"},
+                    ]
+                }
+            }
+        ),
+    }
+)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required("api_key"): str,
+    }
+)
+
+STEP_LEGACY_UNIT_DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_IP_ADDRESS): str,
     }
 )
 
@@ -51,10 +72,6 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     except ServerError as exc:
         raise CannotConnect from exc
 
-    # If you cannot connect:
-    # throw CannotConnect
-    # If the authentication is wrong:
-    # InvalidAuth
     units_ = []
     for unit in units:
         units_.append(unit["id"])
@@ -63,35 +80,132 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     return {"units": units_, "account_id": account_id}
 
 
+async def validate_legacy_unit(hass: HomeAssistant, ip_address: str) -> None:
+    """Validate connection to a legacy P3 Powervault unit via the health endpoint."""
+    client = PowerVault("")
+    try:
+        response = await hass.async_add_executor_job(client.get_health, ip_address)
+    except (RequestError, ServerError) as exc:
+        raise CannotConnect from exc
+
+    if response != {"status": "ok"}:
+        raise CannotConnect
+
+
 class PowervaultConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
     """Handle a config flow for Powervault."""
 
-    VERSION = 1
+    VERSION = 2
     unit_id: str
     unit_name: str
     account_info: dict[str, Any]
     api_key: str
+    model: str
 
-    async def async_step_pick_unit(
+    async def async_step_reauth(
+        self, _user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle re-authentication triggered when the stored model is unknown."""
+        return await self.async_step_reauth_model()
+
+    async def async_step_reauth_model(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step."""
+        """Ask the user to identify their Powervault model."""
         if user_input is not None:
-            # Save the picked unit id
-            self.unit_id = user_input["unit_id"]
-            self.unit_name = user_input["unit_name"]
-
-            # Now we can create the entity
-
-            return self.async_create_entry(
-                title=f"Powervault - {self.unit_name}",
-                data={"api_key": self.api_key, "unit_id": self.unit_id},
+            self.model = user_input[CONF_MODEL]
+            if self.model == MODEL_LEGACY_P3:
+                return await self.async_step_reauth_legacy()
+            # Newer unit — existing api_key / unit_id remain valid.
+            entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+            self.hass.config_entries.async_update_entry(
+                entry,
+                data={**entry.data, CONF_MODEL: MODEL_NEWER},
             )
+            return self.async_abort(reason="reauth_successful")
+
+        return self.async_show_form(
+            step_id="reauth_model",
+            data_schema=STEP_MODEL_DATA_SCHEMA,
+        )
+
+    async def async_step_reauth_legacy(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Ask for the IP address of the legacy P3 unit."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            try:
+                await validate_legacy_unit(self.hass, user_input[CONF_IP_ADDRESS])
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else:
+                entry = self.hass.config_entries.async_get_entry(
+                    self.context["entry_id"]
+                )
+                self.hass.config_entries.async_update_entry(
+                    entry,
+                    data={
+                        **entry.data,
+                        CONF_MODEL: MODEL_LEGACY_P3,
+                        CONF_IP_ADDRESS: user_input[CONF_IP_ADDRESS],
+                    },
+                )
+                return self.async_abort(reason="reauth_successful")
+
+        return self.async_show_form(
+            step_id="reauth_legacy",
+            data_schema=STEP_LEGACY_UNIT_DATA_SCHEMA,
+            errors=errors,
+        )
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step."""
+        """Handle the initial step - model selection."""
+        if user_input is not None:
+            self.model = user_input[CONF_MODEL]
+            if self.model == MODEL_LEGACY_P3:
+                return await self.async_step_legacy_unit()
+            return await self.async_step_api_key()
+
+        return self.async_show_form(step_id="user", data_schema=STEP_MODEL_DATA_SCHEMA)
+
+    async def async_step_legacy_unit(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle legacy P3 unit configuration."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            try:
+                await validate_legacy_unit(self.hass, user_input[CONF_IP_ADDRESS])
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else:
+                return self.async_create_entry(
+                    title="Powervault P3",
+                    data={
+                        CONF_MODEL: MODEL_LEGACY_P3,
+                        CONF_IP_ADDRESS: user_input[CONF_IP_ADDRESS],
+                    },
+                )
+
+        return self.async_show_form(
+            step_id="legacy_unit",
+            data_schema=STEP_LEGACY_UNIT_DATA_SCHEMA,
+            errors=errors,
+        )
+
+    async def async_step_api_key(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle API key entry for newer Powervault units."""
         errors: dict[str, str] = {}
         if user_input is not None:
             try:
@@ -121,16 +235,34 @@ class PowervaultConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
                     step_id="pick_unit", data_schema=vol.Schema(data_schema)
                 )
 
-                # return self.async_create_entry(title=info["title"], data=user_input)
-
         return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+            step_id="api_key", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )
 
+    async def async_step_pick_unit(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle the initial step."""
+        if user_input is not None:
+            # Save the picked unit id
+            self.unit_id = user_input["unit_id"]
+            self.unit_name = user_input["unit_name"]
 
-class CannotConnect(HomeAssistantError):
+            # Now we can create the entity
+
+            return self.async_create_entry(
+                title=f"Powervault - {self.unit_name}",
+                data={
+                    CONF_MODEL: MODEL_NEWER,
+                    "api_key": self.api_key,
+                    "unit_id": self.unit_id,
+                },
+            )
+
+
+class CannotConnect(HomeAssistantError):  # pylint: disable=too-few-public-methods
     """Error to indicate we cannot connect."""
 
 
-class InvalidAuth(HomeAssistantError):
+class InvalidAuth(HomeAssistantError):  # pylint: disable=too-few-public-methods
     """Error to indicate there is invalid auth."""

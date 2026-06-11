@@ -1,7 +1,36 @@
 {
   "config": {
     "step": {
+      "reauth_model": {
+        "title": "Confirm your Powervault model",
+        "description": "We need to know which model of Powervault you have. P3 units now use a local connection instead of the cloud API.",
+        "data": {
+          "model": "Powervault model"
+        }
+      },
+      "reauth_legacy": {
+        "title": "Enter your P3 Powervault IP address",
+        "description": "Enter the local IP address of your Powervault P3 unit on your network.",
+        "data": {
+          "ip_address": "IP Address"
+        }
+      },
       "user": {
+        "title": "Select your Powervault model",
+        "description": "Choose the model of Powervault you have.",
+        "data": {
+          "model": "Powervault model"
+        }
+      },
+      "legacy_unit": {
+        "title": "Connect to your Legacy P3 Powervault",
+        "description": "Enter the local IP address of your Powervault P3 unit.",
+        "data": {
+          "ip_address": "IP Address"
+        }
+      },
+      "api_key": {
+        "title": "Enter your Powervault API key",
         "description": "Enter the API key provided by Powervault. This is only given out after you've paid the £60 fee.",
         "data": {
           "api_key": "[%key:common::config_flow::data::api_key%]"
@@ -21,6 +50,7 @@
       "unknown": "[%key:common::config_flow::error::unknown%]"
     },
     "abort": {
+      "reauth_successful": "[%key:common::config_flow::abort::reauth_successful%]",
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
     }
   }

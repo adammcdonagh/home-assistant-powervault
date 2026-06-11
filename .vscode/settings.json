@@ -23,5 +23,6 @@
   "python.testing.pytestEnabled": true,
   "editor.formatOnType": true,
   "python.testing.pytestArgs": ["."],
-  "python.linting.pylintCategorySeverity.refactor": "Warning"
+  "python.linting.pylintCategorySeverity.refactor": "Warning",
+  "python-envs.defaultEnvManager": "ms-python.python:system"
 }
