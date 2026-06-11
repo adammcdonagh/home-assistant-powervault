@@ -8,9 +8,10 @@ env:
 # yamllint disable-line rule:truthy
 on:
   push:
+    branches: [main]
   pull_request:
     types: [opened, synchronize]
-    branches: main
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -36,7 +37,7 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ github.ref_name }}-${{
             hashFiles('pyproject.toml', 'requirements_test_pre_commit.txt',
           'requirements.txt') }}" >>
           $GITHUB_OUTPUT
@@ -48,6 +49,8 @@ jobs:
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -58,7 +61,7 @@ jobs:
       - name: Generate pre-commit restore key
         id: generate-pre-commit-key
         run: >-
-          echo "key=pre-commit-${{ env.CACHE_VERSION }}-${{
+          echo "key=pre-commit-${{ env.CACHE_VERSION }}-${{ github.ref_name }}-${{
             hashFiles('.pre-commit-config.yaml') }}" >> $GITHUB_OUTPUT
       - name: Restore pre-commit environment
         id: cache-precommit
@@ -67,6 +70,8 @@ jobs:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: >-
             ${{ runner.os }}-${{ steps.generate-pre-commit-key.outputs.key }}
+          restore-keys: |
+            ${{ runner.os }}-pre-commit-${{ env.CACHE_VERSION }}-
       - name: Install pre-commit dependencies
         if: steps.cache-precommit.outputs.cache-hit != 'true'
         run: |
@@ -95,6 +100,8 @@ jobs:
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-
       - name: Restore pre-commit environment
         id: cache-precommit
         uses: actions/cache@v5
@@ -102,6 +109,8 @@ jobs:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+          restore-keys: |
+            ${{ runner.os }}-pre-commit-${{ env.CACHE_VERSION }}-
       - name: Register ruff problem matcher
         run: |
           echo "::add-matcher::.github/workflows/matchers/ruff.json"
@@ -132,6 +141,8 @@ jobs:
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-
       - name: Restore pre-commit environment
         id: cache-precommit
         uses: actions/cache@v5
@@ -139,6 +150,8 @@ jobs:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+          restore-keys: |
+            ${{ runner.os }}-pre-commit-${{ env.CACHE_VERSION }}-
       - name: Run black checks
         run: |
           . venv/bin/activate
@@ -166,6 +179,8 @@ jobs:
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-
       - name: Restore pre-commit environment
         id: cache-precommit
         uses: actions/cache@v5
@@ -173,6 +188,8 @@ jobs:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+          restore-keys: |
+            ${{ runner.os }}-pre-commit-${{ env.CACHE_VERSION }}-
       - name: Register pylint problem matcher
         run: |
           echo "::add-matcher::.github/workflows/matchers/pylint.json"
@@ -203,6 +220,8 @@ jobs:
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-
       - name: Restore pre-commit environment
         id: cache-precommit
         uses: actions/cache@v5
@@ -210,6 +229,8 @@ jobs:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+          restore-keys: |
+            ${{ runner.os }}-pre-commit-${{ env.CACHE_VERSION }}-
       - name: Register mypy problem matcher
         run: |
           echo "::add-matcher::.github/workflows/matchers/mypy.json"
@@ -240,6 +261,8 @@ jobs:
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-
       - name: Restore pre-commit environment
         id: cache-precommit
         uses: actions/cache@v5
@@ -247,6 +270,8 @@ jobs:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+          restore-keys: |
+            ${{ runner.os }}-pre-commit-${{ env.CACHE_VERSION }}-
 
       - name: Register yamllint problem matcher
         run: |
@@ -304,6 +329,8 @@ jobs:
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-
       - name: Run tests
         run: |
           . venv/bin/activate
