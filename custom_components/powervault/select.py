@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from powervaultpy import VALID_STATUSES
 
-from .const import DOMAIN
+from .const import CONF_IP_ADDRESS, DOMAIN
 from .entity import PowervaultEntity
 from .models import PowervaultRuntimeData
 
@@ -47,7 +47,7 @@ class PowervaultSelectEntity(
         """Return whether the entity is available."""
         return super().available and self.data.battery_state is not None
 
-    @callback  # type: ignore[untyped-decorator]
+    @callback  # type: ignore[misc]
     def _async_update_attrs(self) -> None:
         """Update entity attributes."""
         if self.data.battery_state is not None:
@@ -55,7 +55,7 @@ class PowervaultSelectEntity(
         else:
             self._attr_current_option = None
 
-    @callback  # type: ignore[untyped-decorator]
+    @callback  # type: ignore[misc]
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         self._async_update_attrs()
@@ -63,11 +63,19 @@ class PowervaultSelectEntity(
 
     async def async_select_option(self, option: str) -> None:
         """Change the current preset."""
-        await self.coordinator.hass.async_add_executor_job(
-            self.powervault.set_battery_state,
-            self.coordinator.config_entry.data["unit_id"],
-            option,
-        )
+        if self.coordinator.config_entry.data.get(CONF_IP_ADDRESS):
+            # unit_id is ignored by the library when local_ip is set on the client
+            await self.coordinator.hass.async_add_executor_job(
+                self.powervault.set_battery_state,
+                None,
+                option,
+            )
+        else:
+            await self.coordinator.hass.async_add_executor_job(
+                self.powervault.set_battery_state,
+                self.coordinator.config_entry.data["unit_id"],
+                option,
+            )
 
         self._attr_current_option = option
         self.async_write_ha_state()
