@@ -20,6 +20,7 @@ MAX_POLL_INTERVAL: Final = 60
 
 CONF_MODEL: Final = "model"
 CONF_IP_ADDRESS: Final = "ip_address"
+CONF_USE_API_HISTORY: Final = "use_api_history"
 
 MODEL_LEGACY_P3: Final = "legacy_p3"
 MODEL_NEWER: Final = "newer"

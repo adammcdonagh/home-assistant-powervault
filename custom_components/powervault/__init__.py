@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
+from datetime import date
 from datetime import datetime as dt
 from datetime import timedelta
 from zoneinfo import ZoneInfo
@@ -12,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from powervaultpy import PowerVault
 from powervaultpy.powervault import ServerError
@@ -20,6 +23,7 @@ from .const import (
     CONF_IP_ADDRESS,
     CONF_MODEL,
     CONF_POLL_INTERVAL,
+    CONF_USE_API_HISTORY,
     DEFAULT_POLL_INTERVAL,
     DOMAIN,
     MODEL_LEGACY_P3,
@@ -30,7 +34,7 @@ from .const import (
 from .models import PowervaultBaseInfo, PowervaultData, PowervaultRuntimeData
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SELECT]
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SELECT, Platform.SWITCH]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -67,10 +71,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     manager = PowervaultDataManager(
-        hass, client, unit_id, runtime_data, local_ip=local_ip
+        hass, client, unit_id, runtime_data, local_ip=local_ip, config_entry=entry
     )
 
     if local_ip:
+        await manager.async_initialize()
         poll_interval = int(
             entry.options.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
         )
@@ -194,8 +199,136 @@ def get_kwh(data: dict) -> dict:
     return totals
 
 
-class PowervaultDataManager:  # pylint: disable=too-few-public-methods
+def _compute_sample_flows(
+    grid_w: float, battery_w: float, solar_w: float, interval_wh: float
+) -> dict[str, float]:
+    """Return energy flow deltas (Wh) for one sample interval."""
+    grid_import_w = max(grid_w, 0.0)
+    grid_export_w = max(-grid_w, 0.0)
+    battery_discharge_w = max(-battery_w, 0.0)
+    battery_charge_w = max(battery_w, 0.0)
+    solar_gen_w = max(-solar_w, 0.0)
+
+    solar_rem = solar_gen_w
+    home_from_solar = min(
+        solar_rem,
+        max(0.0, solar_gen_w + battery_discharge_w + grid_import_w - battery_charge_w),
+    )
+    solar_rem -= home_from_solar
+    battery_from_solar = min(solar_rem, battery_charge_w)
+    solar_rem -= battery_from_solar
+    solar_exported_w = min(solar_rem, grid_export_w)
+
+    battery_from_grid = max(0.0, battery_charge_w - battery_from_solar)
+    battery_to_home = min(
+        battery_discharge_w,
+        max(
+            0.0,
+            battery_discharge_w
+            + solar_gen_w
+            + grid_import_w
+            - battery_charge_w
+            - grid_export_w,
+        ),
+    )
+    home_w = (
+        grid_import_w
+        + battery_discharge_w
+        + solar_gen_w
+        - battery_charge_w
+        - grid_export_w
+    )
+
+    return {
+        "batteryInputFromGrid": battery_from_grid * interval_wh,
+        "batteryInputFromSolar": battery_from_solar * interval_wh,
+        "batteryOutputConsumedByHome": battery_to_home * interval_wh,
+        "batteryOutputExported": max(0.0, battery_discharge_w - battery_to_home)
+        * interval_wh,
+        "solarConsumedByHome": home_from_solar * interval_wh,
+        "solarExported": solar_exported_w * interval_wh,
+        "solarGenerated": solar_gen_w * interval_wh,
+        "gridConsumedByHome": grid_import_w * interval_wh,
+        "homeConsumed": max(home_w, 0.0) * interval_wh,
+    }
+
+
+def _try_fetch_chart_totals(client: PowerVault) -> dict[str, float] | None:
+    """Fetch today's chart data and derive energy totals.
+
+    Returns a dict keyed by the standard total keys (values in Wh) on success,
+    or None if the fetch fails or the data appears incomplete.
+    """
+    local_tz = ZoneInfo("Europe/London")
+    now_local = dt.now(local_tz)
+    today_midnight = dt(
+        now_local.year, now_local.month, now_local.day, 0, 0, 0, tzinfo=local_tz
+    )
+    today_end = dt(
+        now_local.year, now_local.month, now_local.day, 23, 59, 59, tzinfo=local_tz
+    )
+
+    try:
+        chart_data = client.get_chart_data(today_midnight, today_end)
+    except Exception as err:  # pylint: disable=broad-except
+        _LOGGER.debug("Chart data fetch failed: %s", err)
+        return None
+
+    if not chart_data:
+        return None
+
+    interval_wh = 30 / 3600  # 30-second samples
+    acc: dict[str, float] = dict.fromkeys(
+        (
+            "batteryInputFromGrid",
+            "batteryInputFromSolar",
+            "batteryOutputConsumedByHome",
+            "batteryOutputExported",
+            "solarConsumedByHome",
+            "solarExported",
+            "solarGenerated",
+            "gridConsumedByHome",
+            "homeConsumed",
+        ),
+        0.0,
+    )
+
+    last_grid_w: float = 0.0
+    last_battery_w: float = 0.0
+    last_solar_w: float = 0.0
+
+    for timestamp_group in chart_data:
+        measurements: dict[str, float] = {
+            item["measurement"]: item["value"]
+            for item in timestamp_group
+            if item.get("measurement") is not None and item.get("value") is not None
+        }
+        last_grid_w = measurements.get("gridPower", last_grid_w)
+        last_battery_w = measurements.get("batteryPower", last_battery_w)
+        last_solar_w = measurements.get("aux1Power", last_solar_w)
+
+        for key, delta in _compute_sample_flows(
+            last_grid_w, last_battery_w, last_solar_w, interval_wh
+        ).items():
+            acc[key] += delta
+
+    return {k: round(v, 3) for k, v in acc.items()}
+
+
+class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     """Class to manager powervault data."""
+
+    _TOTAL_KEYS = (
+        "batteryInputFromGrid",
+        "batteryInputFromSolar",
+        "batteryOutputConsumedByHome",
+        "batteryOutputExported",
+        "homeConsumed",
+        "gridConsumedByHome",
+        "solarConsumedByHome",
+        "solarExported",
+        "solarGenerated",
+    )
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -204,6 +337,7 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods
         unit_id: str | None,
         runtime_data: PowervaultRuntimeData,
         local_ip: str | None = None,
+        config_entry: ConfigEntry | None = None,
     ) -> None:
         """Init the data manager."""
         self.hass = hass
@@ -211,13 +345,57 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods
         self.local_ip = local_ip
         self.runtime_data = runtime_data
         self.client = client
+        self.config_entry = config_entry
+        # Incremental energy accumulator for local P3 path.
+        self._acc: dict[str, float] = dict.fromkeys(self._TOTAL_KEYS, 0.0)
+        self._last_poll_time: dt | None = None
+        self._acc_date: date | None = None
+        # Persistent storage for the accumulator.
+        store_key = (
+            f"{DOMAIN}_{entry.entry_id}_accumulator"
+            if (entry := config_entry)
+            else None
+        )
+        self._store: Store | None = Store(hass, 1, store_key) if store_key else None
+
+    async def async_initialize(self) -> None:
+        """Load persisted accumulator state from storage."""
+        if not self._store:
+            return
+        if not (stored := await self._store.async_load()):
+            return
+        if not (stored_date_str := stored.get("date")):
+            return
+        stored_date = date.fromisoformat(stored_date_str)
+        local_tz = ZoneInfo("Europe/London")
+        today = dt.now(local_tz).date()
+        if stored_date != today:
+            _LOGGER.debug("Persisted accumulator is from a previous day — discarding")
+            await self._store.async_remove()
+            return
+        acc = stored.get("acc", {})
+        for key in self._TOTAL_KEYS:
+            if key in acc:
+                self._acc[key] = float(acc[key])
+        self._acc_date = stored_date
+        _LOGGER.debug("Restored accumulator from storage: %s", self._acc)
 
     async def async_update_data(self) -> PowervaultData:
         """Fetch data from API endpoint."""
         # Check if we had an error before
         _LOGGER.debug("Checking if update failed")
 
-        return await self.hass.async_add_executor_job(self._update_data)  # type: ignore[no-any-return]
+        data = await self.hass.async_add_executor_job(self._update_data)
+        if self.local_ip:
+            await self._async_save_accumulator()
+        return data  # type: ignore[no-any-return]
+
+    async def _async_save_accumulator(self) -> None:
+        """Persist the current accumulator to storage."""
+        if self._store and self._acc_date:
+            await self._store.async_save(
+                {"date": self._acc_date.isoformat(), "acc": dict(self._acc)}
+            )
 
     def _update_data(self) -> PowervaultData:
         """Fetch data from API endpoint."""
@@ -230,8 +408,87 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods
             except ServerError as err:
                 raise UpdateFailed("Unable to fetch data from powervault") from err
 
+            if self.local_ip:
+                use_history = (
+                    self.config_entry.options.get(CONF_USE_API_HISTORY, True)
+                    if self.config_entry
+                    else True
+                )
+                api_totals = (
+                    _try_fetch_chart_totals(self.client) if use_history else None
+                )
+                data = self._accumulate(data, api_totals=api_totals)
+
             return data
         raise RuntimeError("unreachable")
+
+    def _accumulate(
+        self,
+        data: PowervaultData,
+        api_totals: dict[str, float] | None = None,
+    ) -> PowervaultData:
+        """Accumulate instantaneous power readings into daily energy totals (Wh).
+
+        Called only for the local P3 path. Each poll:
+        1. Adds ΔWh (from instantaneous values) to the running accumulator.
+        2. If the API chart totals are available and >= the accumulator for a
+           given key, the API value is used instead (it is more accurate, being
+           derived from 30-second resolution history). If the API value has
+           dropped below the accumulator — indicating a mid-day history reset —
+           the accumulator is kept, so the total never goes backwards.
+        """
+        local_tz = ZoneInfo("Europe/London")
+        now = dt.now(local_tz)
+        today = now.date()
+
+        # Reset at midnight.
+        if self._acc_date is not None and self._acc_date != today:
+            _LOGGER.debug("New day detected — resetting energy accumulator")
+            self._acc = dict.fromkeys(self._TOTAL_KEYS, 0.0)
+        self._acc_date = today
+
+        if self._last_poll_time is not None:
+            # Only accumulate if the gap is ≤5 minutes. Larger gaps indicate a
+            # restart or extended outage — skip to avoid inflating totals.
+            if (
+                elapsed_hours := (now - self._last_poll_time).total_seconds() / 3600
+            ) <= 5 / 60:
+                for key in self._TOTAL_KEYS:
+                    mw_value = getattr(data, key, None)
+                    if mw_value is not None and mw_value >= 0:
+                        # PowervaultData stores instant values in mW.
+                        # mW / 1000 = W; W * hours = Wh.
+                        # sensor.py divides totals by 1000 to display kWh.
+                        self._acc[key] = round(
+                            self._acc[key] + (mw_value / 1000) * elapsed_hours, 4
+                        )
+            else:
+                _LOGGER.debug(
+                    "Skipping accumulation — gap of %.1f minutes is too large",
+                    elapsed_hours * 60,
+                )
+
+        # Hybrid: prefer the API chart total when it is >= our accumulator.
+        # If the API has reset mid-day its value will be lower — ignore it.
+        if api_totals:
+            for key in self._TOTAL_KEYS:
+                api_val = api_totals.get(key)
+                if api_val is not None and api_val >= self._acc[key]:
+                    self._acc[key] = api_val
+                elif api_val is not None:
+                    _LOGGER.debug(
+                        "API chart total for %s (%.3f) is lower than accumulator "
+                        "(%.3f) — ignoring API value (likely mid-day history reset)",
+                        key,
+                        api_val,
+                        self._acc[key],
+                    )
+
+        self._last_poll_time = now
+        return replace(
+            data,
+            totals={k: self._acc[k] for k in self._TOTAL_KEYS},
+        )
 
 
 def _fetch_powervault_data(  # pylint: disable=too-many-branches
@@ -271,142 +528,6 @@ def _fetch_powervault_data_legacy(  # pylint: disable=too-many-locals,too-many-s
             "Failed to get data from Powervault local API. Missing expected measurements."
         )
 
-    # Fetch today's historical chart data to derive energy totals.
-    # Midnight..end-of-day in local time, converted to UTC-aware datetimes.
-
-    local_tz = ZoneInfo("Europe/London")
-    now_local = dt.now(local_tz)
-    today_midnight = dt(
-        now_local.year, now_local.month, now_local.day, 0, 0, 0, tzinfo=local_tz
-    )
-    today_end = dt(
-        now_local.year, now_local.month, now_local.day, 23, 59, 59, tzinfo=local_tz
-    )
-    _LOGGER.debug(f"Today midnight/end: {today_midnight}/{today_end}")
-
-    chart_totals: dict[str, float] = {}
-    try:
-        chart_data = client.get_chart_data(today_midnight, today_end)
-        # Debnug log the chart data, but only the first 5 entries
-        _LOGGER.debug(f"Chart data: {chart_data[:5]}")
-        # chart_data is a list of lists — each inner list is a group of
-        # {measurement, value, timestamp, ...} objects sharing the same timestamp.
-        # For each 30-second sample, extract the three power measurements then
-        # compute per-sample energy flows (kWh = W × 30s / 3600s / 1000).
-        interval_wh = 30 / 3600  # 30-second sample interval → Wh per sample
-
-        acc: dict[str, float] = {
-            "batteryInputFromGrid": 0.0,
-            "batteryInputFromSolar": 0.0,
-            "batteryOutputConsumedByHome": 0.0,
-            "batteryOutputExported": 0.0,
-            "solarConsumedByHome": 0.0,
-            "solarExported": 0.0,
-            "solarGenerated": 0.0,
-            "gridConsumedByHome": 0.0,
-            "homeConsumed": 0.0,
-        }
-
-        # Carry the last known value for each power channel so that groups
-        # which only contain a subset of measurements still contribute correctly.
-        last_grid_w: float = 0.0
-        last_battery_w: float = 0.0
-        last_solar_w: float = 0.0
-
-        for timestamp_group in chart_data:
-            measurements: dict[str, float] = {
-                item["measurement"]: item["value"]
-                for item in timestamp_group
-                if item.get("measurement") is not None and item.get("value") is not None
-            }
-
-            last_grid_w = measurements.get("gridPower", last_grid_w)
-            last_battery_w = measurements.get("batteryPower", last_battery_w)
-            last_solar_w = measurements.get("aux1Power", last_solar_w)
-
-            grid_w = last_grid_w
-            battery_w = last_battery_w
-            solar_w = last_solar_w
-
-            # Signed convention:
-            # gridPower:    positive = importing, negative = exporting
-            # batteryPower: negative = discharging, positive = charging
-            # aux1Power:    negative = generating, positive = aux load
-            grid_import_w = max(grid_w, 0.0)
-            grid_export_w = max(-grid_w, 0.0)
-            battery_discharge_w = max(-battery_w, 0.0)
-            battery_charge_w = max(battery_w, 0.0)
-            solar_gen_w = max(-solar_w, 0.0)
-
-            # Solar allocation (solar-first priority):
-            # Solar covers home load first, then battery charge, then grid export.
-            solar_remaining = solar_gen_w
-            home_from_solar = min(
-                solar_remaining,
-                max(
-                    0.0,
-                    solar_gen_w
-                    + battery_discharge_w
-                    + grid_import_w
-                    - battery_charge_w,
-                ),
-            )
-            solar_remaining -= home_from_solar
-            battery_from_solar = min(solar_remaining, battery_charge_w)
-            solar_remaining -= battery_from_solar
-            solar_exported_w = min(solar_remaining, grid_export_w)
-
-            # Battery charge source: remaining charge after solar covered
-            battery_from_grid = max(0.0, battery_charge_w - battery_from_solar)
-
-            # Battery discharge allocation: home first, grid export second
-            battery_to_home = min(
-                battery_discharge_w,
-                max(
-                    0.0,
-                    battery_discharge_w
-                    + solar_gen_w
-                    + grid_import_w
-                    - battery_charge_w
-                    - grid_export_w,
-                ),
-            )
-            battery_exported_w = max(0.0, battery_discharge_w - battery_to_home)
-
-            # Home consumption
-            home_w = (
-                grid_import_w
-                + battery_discharge_w
-                + solar_gen_w
-                - battery_charge_w
-                - grid_export_w
-            )
-
-            acc["batteryInputFromGrid"] += battery_from_grid * interval_wh
-            acc["batteryInputFromSolar"] += battery_from_solar * interval_wh
-            acc["batteryOutputConsumedByHome"] += battery_to_home * interval_wh
-            acc["batteryOutputExported"] += battery_exported_w * interval_wh
-            acc["solarConsumedByHome"] += home_from_solar * interval_wh
-            acc["solarExported"] += solar_exported_w * interval_wh
-            acc["solarGenerated"] += solar_gen_w * interval_wh
-            acc["gridConsumedByHome"] += (
-                grid_import_w * interval_wh
-            )  # includes battery charging from grid
-            acc["homeConsumed"] += max(home_w, 0.0) * interval_wh
-
-        chart_totals = {k: round(v, 3) for k, v in acc.items()}
-        _LOGGER.debug(f"Chart totals: {chart_totals}")
-
-        # Get the min and max times for the chart data and convert them to human-readable strings
-        chart_min_time = chart_data[0][0]["timestamp"]
-        chart_max_time = chart_data[-1][0]["timestamp"]
-        chart_min_time = dt.fromtimestamp(chart_min_time, local_tz)
-        chart_max_time = dt.fromtimestamp(chart_max_time, local_tz)
-        _LOGGER.debug("Chart min/max times: %s/%s", chart_min_time, chart_max_time)
-
-    except Exception as err:  # pylint: disable=broad-except
-        _LOGGER.warning(f"Failed to fetch chart data for totals: {err}")
-
     battery_state = "UNKNOWN"
     try:
         battery_state = client.get_battery_state(None)
@@ -438,7 +559,7 @@ def _fetch_powervault_data_legacy(  # pylint: disable=too-many-locals,too-many-s
         0.0,
     )
 
-    # Solar-first instant breakdown (mirrors the chart allocation logic)
+    # Solar-first instant breakdown
     sol_rem = instant_solar_gen_w
     inst_solar_to_home = min(sol_rem, instant_demand_w)
     sol_rem -= inst_solar_to_home
@@ -454,6 +575,7 @@ def _fetch_powervault_data_legacy(  # pylint: disable=too-many-locals,too-many-s
     inst_battery_exported = max(0.0, instant_battery_discharge_w - inst_battery_to_home)
 
     # All instant fields are stored in mW — sensor.py divides by 1000 to display W.
+    # totals are left empty here; PowervaultDataManager._accumulate populates them.
     milli = 1000
 
     return PowervaultData(
@@ -473,19 +595,7 @@ def _fetch_powervault_data_legacy(  # pylint: disable=too-many-locals,too-many-s
         solarConsumption=inst_solar_to_home * milli,
         instant_solar=instant_solar_gen_w * milli,
         battery_state=battery_state,
-        totals={
-            "batteryInputFromGrid": chart_totals.get("batteryInputFromGrid", 0),
-            "batteryInputFromSolar": chart_totals.get("batteryInputFromSolar", 0),
-            "batteryOutputConsumedByHome": chart_totals.get(
-                "batteryOutputConsumedByHome", 0
-            ),
-            "batteryOutputExported": chart_totals.get("batteryOutputExported", 0),
-            "gridConsumedByHome": chart_totals.get("gridConsumedByHome", 0),
-            "solarGenerated": chart_totals.get("solarGenerated", 0),
-            "solarConsumedByHome": chart_totals.get("solarConsumedByHome", 0),
-            "solarExported": chart_totals.get("solarExported", 0),
-            "homeConsumed": chart_totals.get("homeConsumed", 0),
-        },
+        totals={},
     )
 
 
