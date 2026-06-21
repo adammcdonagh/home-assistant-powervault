@@ -1,5 +1,11 @@
 # v2.0.1-pre
 
+### Changed
+
+- Bumped `powervaultpy` to `v1.1.4`
+
+# v2.0.1-pre
+
 ### Fixed
 
 - **Energy total sensors no longer reset mid-day.** The root cause was a combination of two issues: the `TOTAL_INCREASING` state class (which treats any decrease as a meter rollover) and a reliance on the Powervault API returning a full day of chart history on every poll. Powervault's history API loses data unpredictably, causing totals to drop to zero and never recover until midnight.
