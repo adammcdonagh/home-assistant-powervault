@@ -1,10 +1,6 @@
-# v2.0.1-pre2
+# v2.0.1
 
-### Changed
-
-- Bumped `powervaultpy` to `v1.1.4`
-
-# v2.0.1-pre
+**NOTE** If Powervault local data is lost in the 1st 24 hrs of updating, the data may be incorrect. Data is collected in case of Powervault history failure from midnight. This will correct itself at midnight.
 
 ### Fixed
 
@@ -12,6 +8,7 @@
 
 ### Changed
 
+- Bumped `powervaultpy` to `v1.1.4`
 - **Hybrid incremental accumulator for P3 energy totals.** Rather than recalculating totals from scratch using the full-day chart history on every poll, the integration now maintains a running accumulator. Each poll, a small energy delta (watts × elapsed time) is added to the accumulator using the current instantaneous readings. The API chart history is still fetched and used as a cross-check — if the API returns a value higher than the accumulator (normal operation), the more accurate API value is used. If the API value drops below the accumulator (history reset), the API value is ignored and the accumulator carries on uninterrupted.
 - **Accumulator is persisted across Home Assistant restarts.** The running daily total is saved to HA's `.storage/` directory after every poll. On startup, the saved value is restored if it is from the current day, so a restart no longer causes totals to reset to zero mid-day.
 - **Energy total sensor state class changed from `TOTAL_INCREASING` to `TOTAL`.** The previous class caused HA to misinterpret any decrease in value as a utility meter rollover. `TOTAL` correctly models a daily accumulation that resets at midnight.

@@ -10,6 +10,6 @@
   "issue_tracker": "https://github.com/adammcdonagh/home-assistant-powervault/issues",
   "requirements": ["powervaultpy==1.1.4"],
   "ssdp": [],
-  "version": "v2.0.1-pre2",
+  "version": "v2.0.1",
   "zeroconf": []
 }
