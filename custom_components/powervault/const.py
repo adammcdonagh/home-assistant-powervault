@@ -8,6 +8,7 @@ MANUFACTURER = "Powervault"
 POWERVAULT_BASE_INFO: Final = "base_info"
 POWERVAULT_COORDINATOR: Final = "coordinator"
 POWERVAULT_API: Final = "api_instance"
+POWERVAULT_MANAGER: Final = "manager"
 POWERVAULT_API_CHANGED: Final = "api_changed"
 POWERVAULT_HTTP_SESSION: Final = "http_session"
 

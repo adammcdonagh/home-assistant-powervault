@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from powervaultpy import PowerVault
 from requests import Session
+
+if TYPE_CHECKING:
+    from .__init__ import PowervaultDataManager
 
 
 @dataclass
@@ -47,6 +50,7 @@ class PowervaultRuntimeData(TypedDict):
 
     coordinator: DataUpdateCoordinator[PowervaultData] | None
     api_instance: PowerVault
+    manager: PowervaultDataManager
     base_info: PowervaultBaseInfo
     api_changed: bool
     http_session: Session

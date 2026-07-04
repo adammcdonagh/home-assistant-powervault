@@ -6,8 +6,8 @@ import logging
 from dataclasses import replace
 from datetime import date
 from datetime import datetime as dt
-from datetime import timedelta
-from zoneinfo import ZoneInfo
+from datetime import timedelta, timezone, tzinfo
+from typing import cast
 
 import requests
 from homeassistant.config_entries import ConfigEntry
@@ -16,6 +16,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 from powervaultpy import PowerVault
 from powervaultpy.powervault import ServerError
 
@@ -29,12 +30,18 @@ from .const import (
     MODEL_LEGACY_P3,
     MODEL_UNKNOWN,
     POWERVAULT_COORDINATOR,
+    POWERVAULT_MANAGER,
     UPDATE_INTERVAL,
 )
 from .models import PowervaultBaseInfo, PowervaultData, PowervaultRuntimeData
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SELECT, Platform.SWITCH]
+PLATFORMS: list[Platform] = [
+    Platform.SENSOR,
+    Platform.SELECT,
+    Platform.SWITCH,
+    Platform.BUTTON,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -68,11 +75,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         http_session=http_session,
         coordinator=None,
         api_instance=client,
+        manager=None,  # type: ignore[typeddict-item]
     )
 
     manager = PowervaultDataManager(
         hass, client, unit_id, runtime_data, local_ip=local_ip, config_entry=entry
     )
+    runtime_data[POWERVAULT_MANAGER] = manager
 
     if local_ip:
         await manager.async_initialize()
@@ -253,14 +262,106 @@ def _compute_sample_flows(
     }
 
 
-def _try_fetch_chart_totals(client: PowerVault) -> dict[str, float] | None:
+def _get_local_timezone(hass: HomeAssistant) -> tzinfo:
+    """Return the configured Home Assistant timezone, falling back safely."""
+    if tz_name := hass.config.time_zone:
+        if time_zone := dt_util.get_time_zone(tz_name):
+            return cast(tzinfo, time_zone)
+
+    if (default_time_zone := dt_util.DEFAULT_TIME_ZONE) is not None:
+        return cast(tzinfo, default_time_zone)
+
+    return timezone.utc
+
+
+def _parse_chart_timestamp(value: object) -> dt | None:
+    """Parse a chart data timestamp into a timezone-aware UTC datetime."""
+    if isinstance(value, int | float):
+        timestamp_value = value / 1000 if value > 1_000_000_000_000 else value
+        return dt.fromtimestamp(timestamp_value, tz=timezone.utc)
+
+    if isinstance(value, str):
+        try:
+            parsed = dt.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+
+    return None
+
+
+def _normalize_chart_samples(chart_data: object) -> list[dict[str, object]]:
+    """Normalize chart data into a flat list of per-sample dicts."""
+    if not isinstance(chart_data, list):
+        return []
+
+    samples: list[dict[str, object]] = []
+
+    for entry in chart_data:
+        if isinstance(entry, dict):
+            samples.append(dict(entry))
+            continue
+
+        if not isinstance(entry, list):
+            continue
+
+        sample: dict[str, object] = {}
+        for item in entry:
+            if not isinstance(item, dict):
+                continue
+
+            if "timestamp" not in sample and item.get("timestamp") is not None:
+                sample["timestamp"] = item["timestamp"]
+            if "created_at" not in sample and item.get("created_at") is not None:
+                sample["created_at"] = item["created_at"]
+
+            measurement = item.get("measurement")
+            value = item.get("value")
+            if measurement is not None and value is not None:
+                sample[str(measurement)] = value
+
+        if sample:
+            samples.append(sample)
+
+    return samples
+
+
+def _filter_current_day_chart_samples(
+    chart_data: object, local_tz: tzinfo, today: date
+) -> tuple[list[dict[str, object]], int]:
+    """Return only samples that belong to the current local date."""
+    current_day_samples: list[dict[str, object]] = []
+    skipped_samples = 0
+
+    for sample in _normalize_chart_samples(chart_data):
+        parsed_timestamp = _parse_chart_timestamp(
+            sample.get("timestamp") or sample.get("created_at")
+        )
+        if parsed_timestamp is None:
+            skipped_samples += 1
+            continue
+
+        if parsed_timestamp.astimezone(local_tz).date() != today:
+            skipped_samples += 1
+            continue
+
+        current_day_samples.append(sample)
+
+    return current_day_samples, skipped_samples
+
+
+def _try_fetch_chart_totals(  # pylint: disable=too-many-locals
+    client: PowerVault, local_tz: tzinfo
+) -> dict[str, float] | None:
     """Fetch today's chart data and derive energy totals.
 
     Returns a dict keyed by the standard total keys (values in Wh) on success,
     or None if the fetch fails or the data appears incomplete.
     """
-    local_tz = ZoneInfo("Europe/London")
     now_local = dt.now(local_tz)
+    today = now_local.date()
     today_midnight = dt(
         now_local.year, now_local.month, now_local.day, 0, 0, 0, tzinfo=local_tz
     )
@@ -276,6 +377,25 @@ def _try_fetch_chart_totals(client: PowerVault) -> dict[str, float] | None:
 
     if not chart_data:
         return None
+
+    valid_chart_data, skipped_samples = _filter_current_day_chart_samples(
+        chart_data, local_tz, today
+    )
+
+    if not valid_chart_data:
+        if skipped_samples:
+            _LOGGER.debug(
+                "Discarding chart totals because no samples matched local date %s",
+                today,
+            )
+        return None
+
+    if skipped_samples:
+        _LOGGER.debug(
+            "Skipped %s chart samples outside local date %s",
+            skipped_samples,
+            today,
+        )
 
     interval_wh = 30 / 3600  # 30-second samples
     acc: dict[str, float] = dict.fromkeys(
@@ -297,15 +417,17 @@ def _try_fetch_chart_totals(client: PowerVault) -> dict[str, float] | None:
     last_battery_w: float = 0.0
     last_solar_w: float = 0.0
 
-    for timestamp_group in chart_data:
-        measurements: dict[str, float] = {
-            item["measurement"]: item["value"]
-            for item in timestamp_group
-            if item.get("measurement") is not None and item.get("value") is not None
-        }
-        last_grid_w = measurements.get("gridPower", last_grid_w)
-        last_battery_w = measurements.get("batteryPower", last_battery_w)
-        last_solar_w = measurements.get("aux1Power", last_solar_w)
+    for sample in valid_chart_data:
+        grid_power = sample.get("gridPower")
+        battery_power = sample.get("batteryPower")
+        solar_power = sample.get("aux1Power")
+
+        if isinstance(grid_power, int | float):
+            last_grid_w = float(grid_power)
+        if isinstance(battery_power, int | float):
+            last_battery_w = float(battery_power)
+        if isinstance(solar_power, int | float):
+            last_solar_w = float(solar_power)
 
         for key, delta in _compute_sample_flows(
             last_grid_w, last_battery_w, last_solar_w, interval_wh
@@ -346,6 +468,7 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
         self.runtime_data = runtime_data
         self.client = client
         self.config_entry = config_entry
+        self._local_tz = _get_local_timezone(hass)
         # Incremental energy accumulator for local P3 path.
         self._acc: dict[str, float] = dict.fromkeys(self._TOTAL_KEYS, 0.0)
         self._last_poll_time: dt | None = None
@@ -367,8 +490,7 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
         if not (stored_date_str := stored.get("date")):
             return
         stored_date = date.fromisoformat(stored_date_str)
-        local_tz = ZoneInfo("Europe/London")
-        today = dt.now(local_tz).date()
+        today = dt.now(self._local_tz).date()
         if stored_date != today:
             _LOGGER.debug("Persisted accumulator is from a previous day — discarding")
             await self._store.async_remove()
@@ -397,6 +519,14 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
                 {"date": self._acc_date.isoformat(), "acc": dict(self._acc)}
             )
 
+    async def async_reset_cached_totals(self) -> None:
+        """Clear cached daily totals and persisted accumulator state."""
+        self._acc = dict.fromkeys(self._TOTAL_KEYS, 0.0)
+        self._last_poll_time = None
+        self._acc_date = dt.now(self._local_tz).date()
+        if self._store:
+            await self._store.async_remove()
+
     def _update_data(self) -> PowervaultData:
         """Fetch data from API endpoint."""
         _LOGGER.debug("Updating data")
@@ -415,7 +545,9 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
                     else True
                 )
                 api_totals = (
-                    _try_fetch_chart_totals(self.client) if use_history else None
+                    _try_fetch_chart_totals(self.client, self._local_tz)
+                    if use_history
+                    else None
                 )
                 data = self._accumulate(data, api_totals=api_totals)
 
@@ -437,8 +569,7 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
            dropped below the accumulator — indicating a mid-day history reset —
            the accumulator is kept, so the total never goes backwards.
         """
-        local_tz = ZoneInfo("Europe/London")
-        now = dt.now(local_tz)
+        now = dt.now(self._local_tz)
         today = now.date()
 
         # Reset at midnight.
