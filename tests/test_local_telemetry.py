@@ -29,12 +29,7 @@ from custom_components.powervault.sensor import (
 
 def _load_example_telemetry() -> list[dict[str, object]]:
     """Load the checked-in P3X telemetry sample."""
-    fixture_path = (
-        Path(__file__).resolve().parents[1]
-        / "custom_components"
-        / "powervault"
-        / "example-telemetry.json"
-    )
+    fixture_path = Path(__file__).resolve().parents[0] / "example-telemetry.json"
     return cast(
         list[dict[str, object]],
         json.loads(fixture_path.read_text(encoding="utf-8")),

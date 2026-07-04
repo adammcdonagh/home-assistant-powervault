@@ -1,0 +1,2698 @@
+[
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "actualState",
+    "timestamp": 1783163451.892468,
+    "unit": "I|C",
+    "value": "C"
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "aux1Power",
+    "timestamp": 1783163451.892468,
+    "unit": "watts",
+    "value": -1404
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "aux2Power",
+    "timestamp": 1783163451.892468,
+    "unit": "watts",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "aux3Power",
+    "timestamp": 1783163451.892468,
+    "unit": "watts",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "backplane0Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "backplane1Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "backplane2Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "backplane3Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "backplane4Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "batteryCurrent",
+    "timestamp": 1783163451.892468,
+    "unit": "A",
+    "value": 2.4500000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "batteryPower",
+    "timestamp": 1783163451.892468,
+    "unit": "watts",
+    "value": 846
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "cpuTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 56.0
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "gridCurrent",
+    "timestamp": 1783163451.892468,
+    "unit": "A",
+    "value": 3.3799999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "gridPower",
+    "timestamp": 1783163451.892468,
+    "unit": "watts",
+    "value": -36
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "inverterFrequency",
+    "timestamp": 1783163451.892468,
+    "unit": "Hz",
+    "value": 50.0
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "inverterVoltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 218.69999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "maxChargePower",
+    "timestamp": 1783163451.892468,
+    "unit": "W",
+    "value": 11981
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "maxDischargePower",
+    "timestamp": 1783163451.892468,
+    "unit": "W",
+    "value": 10125
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack0Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack1Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack2Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack3Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack4Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack5Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack6Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack7Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack8Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pack9Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechAvgBMSTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 24.699999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechAvgCellTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 22.300000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechAvgMOSFETTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 23.699999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechMaxBMSTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 26.0
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechMaxCellTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 23.399999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechMaxCellVoltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3380000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechMaxMOSFETTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 24.800000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechMinBMSTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 23.800000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechMinCellTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 21.300000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechMinCellVoltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3199999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechMinMOSFETTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 23.100000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3380000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3370000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3370000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3370000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule10cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule11cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3290000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3279999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3279999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3279999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3279999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3279999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule2cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3290000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3250000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3260000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3279999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3239999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3290000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3300000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3279999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3279999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3250000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3260000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3239999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.323
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3239999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3239999999999998
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule3cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3260000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule4cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3399999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule5cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3319999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3380000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3399999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3370000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3370000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.331
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.331
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule6cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.331
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3319999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3359999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule7cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.335
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.331
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3319999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.331
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3330000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.331
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule8cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3319999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3319999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.331
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3290000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3340000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3399999999999999
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell14Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3290000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.343
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3300000000000001
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.331
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.327
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.331
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.3290000000000002
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "pylontechModule9cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": 3.339
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "requestedState",
+    "timestamp": 1783163451.892468,
+    "unit": "N|I|C|V|H|L|F|R|D|P|Q|A|B|T",
+    "value": "N"
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "socAverage",
+    "timestamp": 1783163451.892468,
+    "unit": "percent",
+    "value": 58
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "socUsable",
+    "timestamp": 1783163451.892468,
+    "unit": "percent",
+    "value": 55
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell0Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell10Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell11Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell12Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell13Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell1Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell2Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell3Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell4Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell5Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell6Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell7Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell8Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell9Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string0cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell0Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell10Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell11Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell12Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell13Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell1Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell2Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell3Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell4Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell5Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell6Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell7Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell8Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell9Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string1cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell0Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell10Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell11Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell12Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell13Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell1Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell2Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell3Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell4Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell5Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell6Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell7Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell8Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell9Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string2cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell0Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell10Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell11Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell12Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell13Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell1Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell2Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell3Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell4Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell5Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell6Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell7Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell8Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell9Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string3cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell0Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell0Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell10Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell10Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell11Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell11Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell12Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell12Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell13Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell13Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell1Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell1Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell2Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell2Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell3Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell3Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell4Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell4Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell5Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell5Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell6Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell6Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell7Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell7Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell8Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell8Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell9Temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "string4cell9Voltage",
+    "timestamp": 1783163451.892468,
+    "unit": "V",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "temperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": 32.0
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "vocCO2",
+    "timestamp": 1783163451.892468,
+    "unit": "ppm",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "vocHumidity",
+    "timestamp": 1783163451.892468,
+    "unit": "percent",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "vocTemperature",
+    "timestamp": 1783163451.892468,
+    "unit": "celsius",
+    "value": null
+  },
+  {
+    "created_at": 1783163451.892468,
+    "id": null,
+    "measurement": "vocVOC",
+    "timestamp": 1783163451.892468,
+    "unit": "index",
+    "value": null
+  }
+]
