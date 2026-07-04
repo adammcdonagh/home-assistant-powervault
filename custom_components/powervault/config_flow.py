@@ -164,7 +164,9 @@ class PowervaultOptionsFlow(OptionsFlow):  # pylint: disable=too-few-public-meth
         return self.async_show_form(step_id="init", data_schema=schema)
 
 
-class PowervaultConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
+class PowervaultConfigFlow(  # pylint: disable=abstract-method
+    ConfigFlow, domain=DOMAIN
+):  # type: ignore[call-arg]
     """Handle a config flow for Powervault."""
 
     VERSION = 3
