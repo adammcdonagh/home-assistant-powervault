@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import replace
 from datetime import date
 from datetime import datetime as dt
-from datetime import timedelta
-from zoneinfo import ZoneInfo
+from datetime import timedelta, timezone, tzinfo
+from typing import cast
 
 import requests
 from homeassistant.config_entries import ConfigEntry
@@ -16,25 +17,47 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 from powervaultpy import PowerVault
 from powervaultpy.powervault import ServerError
 
 from .const import (
     CONF_IP_ADDRESS,
     CONF_MODEL,
+    CONF_PLATFORM,
     CONF_POLL_INTERVAL,
     CONF_USE_API_HISTORY,
     DEFAULT_POLL_INTERVAL,
     DOMAIN,
+    LEGACY_PLATFORM_P3,
+    LEGACY_PLATFORM_P3X,
+    LEGACY_PLATFORMS,
     MODEL_LEGACY_P3,
     MODEL_UNKNOWN,
     POWERVAULT_COORDINATOR,
+    POWERVAULT_MANAGER,
     UPDATE_INTERVAL,
 )
-from .models import PowervaultBaseInfo, PowervaultData, PowervaultRuntimeData
+from .models import (
+    PowervaultBaseInfo,
+    PowervaultData,
+    PowervaultRuntimeData,
+    TelemetryValue,
+)
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SELECT, Platform.SWITCH]
+P3_STRING_CELL_RE = re.compile(r"^(string\d+)cell\d+(Voltage|Temperature)$")
+P3_PACK_TEMPERATURE_RE = re.compile(r"^pack\d+Temperature$")
+P3_BACKPLANE_TEMPERATURE_RE = re.compile(r"^backplane\d+Temperature$")
+P3_STRING_VOLTAGE_RE = re.compile(r"^string\d+cell\d+Voltage$")
+P3_STRING_TEMPERATURE_RE = re.compile(r"^string\d+cell\d+Temperature$")
+P3X_MODULE_CELL_RE = re.compile(r"^(pylontechModule\d+)cell\d+(Voltage|Temperature)$")
+PLATFORMS: list[Platform] = [
+    Platform.SENSOR,
+    Platform.SELECT,
+    Platform.SWITCH,
+    Platform.BUTTON,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -52,13 +75,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         local_ip = entry.data[CONF_IP_ADDRESS]
         client = PowerVault(local_ip=local_ip)
         unit_id = None
+        local_platform = await _async_ensure_legacy_platform(hass, entry, client)
         base_info = await hass.async_add_executor_job(
-            _fetch_base_info_legacy, client, local_ip
+            _fetch_base_info_legacy, client, local_platform
         )
     else:
         api_key = entry.data["api_key"]
         unit_id = entry.data["unit_id"]
         local_ip = None
+        local_platform = None
         client = PowerVault(api_key)
         base_info = await hass.async_add_executor_job(_fetch_base_info, client, unit_id)
 
@@ -68,11 +93,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         http_session=http_session,
         coordinator=None,
         api_instance=client,
+        manager=None,  # type: ignore[typeddict-item]
     )
 
     manager = PowervaultDataManager(
-        hass, client, unit_id, runtime_data, local_ip=local_ip, config_entry=entry
+        hass=hass,
+        client=client,
+        unit_id=unit_id,
+        runtime_data=runtime_data,
+        local_ip=local_ip,
+        local_platform=local_platform,
+        config_entry=entry,
     )
+    runtime_data[POWERVAULT_MANAGER] = manager
 
     if local_ip:
         await manager.async_initialize()
@@ -127,11 +160,38 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
         hass.config_entries.async_update_entry(
             config_entry,
             data={**config_entry.data, CONF_MODEL: MODEL_UNKNOWN},
-            version=2,
+            version=3,
         )
         _LOGGER.info(
-            "Migrated Powervault config entry to version 2; user must confirm model"
+            "Migrated Powervault config entry to version 3; user must confirm model"
         )
+        return True
+
+    if config_entry.version == 2:
+        updated_data = dict(config_entry.data)
+
+        if (
+            updated_data.get(CONF_MODEL) == MODEL_LEGACY_P3
+            and updated_data.get(CONF_PLATFORM) not in LEGACY_PLATFORMS
+            and (local_ip := updated_data.get(CONF_IP_ADDRESS))
+        ):
+            client = PowerVault(local_ip=local_ip)
+            try:
+                updated_data[CONF_PLATFORM] = await hass.async_add_executor_job(
+                    _fetch_legacy_platform, client
+                )
+            except Exception as err:  # pylint: disable=broad-except
+                _LOGGER.warning(
+                    "Unable to determine stored Powervault local platform during migration: %s",
+                    err,
+                )
+
+        hass.config_entries.async_update_entry(
+            config_entry,
+            data=updated_data,
+            version=3,
+        )
+        _LOGGER.info("Migrated Powervault config entry to version 3")
         return True
 
     _LOGGER.error(
@@ -154,16 +214,61 @@ def _fetch_base_info(client: PowerVault, unit_id: str) -> PowervaultBaseInfo:
     return _call_base_info(client, unit_id)
 
 
-def _fetch_base_info_legacy(client: PowerVault, _local_ip: str) -> PowervaultBaseInfo:
+def _fetch_base_info_legacy(
+    client: PowerVault, local_platform: str
+) -> PowervaultBaseInfo:
     uid = client.get_unit_id()
-    return PowervaultBaseInfo(id=uid, model="Powervault P3", eprom_id="")
+    return PowervaultBaseInfo(
+        id=uid,
+        model=f"Powervault {local_platform.upper()}",
+        eprom_id="",
+    )
+
+
+def _fetch_legacy_platform(client: PowerVault) -> str:
+    """Return a normalized stored platform value for a legacy local unit."""
+    return _normalize_legacy_platform(client.get_platform())
+
+
+def _normalize_legacy_platform(platform: str | None) -> str:
+    """Validate and normalize a local platform identifier."""
+    if platform is None:
+        raise ValueError("Powervault local platform is missing")
+
+    if (normalized := platform.strip().lower()) not in LEGACY_PLATFORMS:
+        raise ValueError(f"Unsupported Powervault local platform: {platform}")
+
+    return normalized
+
+
+async def _async_ensure_legacy_platform(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    client: PowerVault,
+) -> str:
+    """Return the stored legacy platform, persisting it once if missing."""
+    stored_platform = entry.data.get(CONF_PLATFORM)
+    if isinstance(stored_platform, str) and stored_platform in LEGACY_PLATFORMS:
+        return stored_platform
+
+    detected_platform = cast(
+        str,
+        await hass.async_add_executor_job(_fetch_legacy_platform, client),
+    )
+    hass.config_entries.async_update_entry(
+        entry,
+        data={**entry.data, CONF_PLATFORM: detected_platform},
+    )
+    return detected_platform
 
 
 def _call_base_info(client: PowerVault, unit_id: str) -> PowervaultBaseInfo:
     """Return PowervaultBaseInfo for the device."""
     unit_data = client.get_unit(unit_id)
     return PowervaultBaseInfo(
-        id=unit_data["id"], model=unit_data["model"], eprom_id=unit_data["epromId"]
+        id=cast(str, unit_data["id"]),
+        model=cast(str, unit_data["model"]),
+        eprom_id=cast(str, unit_data["epromId"]),
     )
 
 
@@ -253,14 +358,106 @@ def _compute_sample_flows(
     }
 
 
-def _try_fetch_chart_totals(client: PowerVault) -> dict[str, float] | None:
+def _get_local_timezone(hass: HomeAssistant) -> tzinfo:
+    """Return the configured Home Assistant timezone, falling back safely."""
+    if tz_name := hass.config.time_zone:
+        if time_zone := dt_util.get_time_zone(tz_name):
+            return cast(tzinfo, time_zone)
+
+    if (default_time_zone := dt_util.DEFAULT_TIME_ZONE) is not None:
+        return cast(tzinfo, default_time_zone)
+
+    return timezone.utc
+
+
+def _parse_chart_timestamp(value: object) -> dt | None:
+    """Parse a chart data timestamp into a timezone-aware UTC datetime."""
+    if isinstance(value, int | float):
+        timestamp_value = value / 1000 if value > 1_000_000_000_000 else value
+        return dt.fromtimestamp(timestamp_value, tz=timezone.utc)
+
+    if isinstance(value, str):
+        try:
+            parsed = dt.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+
+    return None
+
+
+def _normalize_chart_samples(chart_data: object) -> list[dict[str, object]]:
+    """Normalize chart data into a flat list of per-sample dicts."""
+    if not isinstance(chart_data, list):
+        return []
+
+    samples: list[dict[str, object]] = []
+
+    for entry in chart_data:
+        if isinstance(entry, dict):
+            samples.append(dict(entry))
+            continue
+
+        if not isinstance(entry, list):
+            continue
+
+        sample: dict[str, object] = {}
+        for item in entry:
+            if not isinstance(item, dict):
+                continue
+
+            if "timestamp" not in sample and item.get("timestamp") is not None:
+                sample["timestamp"] = item["timestamp"]
+            if "created_at" not in sample and item.get("created_at") is not None:
+                sample["created_at"] = item["created_at"]
+
+            measurement = item.get("measurement")
+            value = item.get("value")
+            if measurement is not None and value is not None:
+                sample[str(measurement)] = value
+
+        if sample:
+            samples.append(sample)
+
+    return samples
+
+
+def _filter_current_day_chart_samples(
+    chart_data: object, local_tz: tzinfo, today: date
+) -> tuple[list[dict[str, object]], int]:
+    """Return only samples that belong to the current local date."""
+    current_day_samples: list[dict[str, object]] = []
+    skipped_samples = 0
+
+    for sample in _normalize_chart_samples(chart_data):
+        parsed_timestamp = _parse_chart_timestamp(
+            sample.get("timestamp") or sample.get("created_at")
+        )
+        if parsed_timestamp is None:
+            skipped_samples += 1
+            continue
+
+        if parsed_timestamp.astimezone(local_tz).date() != today:
+            skipped_samples += 1
+            continue
+
+        current_day_samples.append(sample)
+
+    return current_day_samples, skipped_samples
+
+
+def _try_fetch_chart_totals(  # pylint: disable=too-many-locals
+    client: PowerVault, local_tz: tzinfo
+) -> dict[str, float] | None:
     """Fetch today's chart data and derive energy totals.
 
     Returns a dict keyed by the standard total keys (values in Wh) on success,
     or None if the fetch fails or the data appears incomplete.
     """
-    local_tz = ZoneInfo("Europe/London")
     now_local = dt.now(local_tz)
+    today = now_local.date()
     today_midnight = dt(
         now_local.year, now_local.month, now_local.day, 0, 0, 0, tzinfo=local_tz
     )
@@ -276,6 +473,25 @@ def _try_fetch_chart_totals(client: PowerVault) -> dict[str, float] | None:
 
     if not chart_data:
         return None
+
+    valid_chart_data, skipped_samples = _filter_current_day_chart_samples(
+        chart_data, local_tz, today
+    )
+
+    if not valid_chart_data:
+        if skipped_samples:
+            _LOGGER.debug(
+                "Discarding chart totals because no samples matched local date %s",
+                today,
+            )
+        return None
+
+    if skipped_samples:
+        _LOGGER.debug(
+            "Skipped %s chart samples outside local date %s",
+            skipped_samples,
+            today,
+        )
 
     interval_wh = 30 / 3600  # 30-second samples
     acc: dict[str, float] = dict.fromkeys(
@@ -297,15 +513,17 @@ def _try_fetch_chart_totals(client: PowerVault) -> dict[str, float] | None:
     last_battery_w: float = 0.0
     last_solar_w: float = 0.0
 
-    for timestamp_group in chart_data:
-        measurements: dict[str, float] = {
-            item["measurement"]: item["value"]
-            for item in timestamp_group
-            if item.get("measurement") is not None and item.get("value") is not None
-        }
-        last_grid_w = measurements.get("gridPower", last_grid_w)
-        last_battery_w = measurements.get("batteryPower", last_battery_w)
-        last_solar_w = measurements.get("aux1Power", last_solar_w)
+    for sample in valid_chart_data:
+        grid_power = sample.get("gridPower")
+        battery_power = sample.get("batteryPower")
+        solar_power = sample.get("aux1Power")
+
+        if isinstance(grid_power, int | float):
+            last_grid_w = float(grid_power)
+        if isinstance(battery_power, int | float):
+            last_battery_w = float(battery_power)
+        if isinstance(solar_power, int | float):
+            last_solar_w = float(solar_power)
 
         for key, delta in _compute_sample_flows(
             last_grid_w, last_battery_w, last_solar_w, interval_wh
@@ -336,16 +554,20 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
         client: PowerVault,
         unit_id: str | None,
         runtime_data: PowervaultRuntimeData,
+        *,
         local_ip: str | None = None,
+        local_platform: str | None = None,
         config_entry: ConfigEntry | None = None,
     ) -> None:
         """Init the data manager."""
         self.hass = hass
         self.unit_id = unit_id
         self.local_ip = local_ip
+        self.local_platform = local_platform
         self.runtime_data = runtime_data
         self.client = client
         self.config_entry = config_entry
+        self._local_tz = _get_local_timezone(hass)
         # Incremental energy accumulator for local P3 path.
         self._acc: dict[str, float] = dict.fromkeys(self._TOTAL_KEYS, 0.0)
         self._last_poll_time: dt | None = None
@@ -367,8 +589,7 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
         if not (stored_date_str := stored.get("date")):
             return
         stored_date = date.fromisoformat(stored_date_str)
-        local_tz = ZoneInfo("Europe/London")
-        today = dt.now(local_tz).date()
+        today = dt.now(self._local_tz).date()
         if stored_date != today:
             _LOGGER.debug("Persisted accumulator is from a previous day — discarding")
             await self._store.async_remove()
@@ -397,13 +618,24 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
                 {"date": self._acc_date.isoformat(), "acc": dict(self._acc)}
             )
 
+    async def async_reset_cached_totals(self) -> None:
+        """Clear cached daily totals and persisted accumulator state."""
+        self._acc = dict.fromkeys(self._TOTAL_KEYS, 0.0)
+        self._last_poll_time = None
+        self._acc_date = dt.now(self._local_tz).date()
+        if self._store:
+            await self._store.async_remove()
+
     def _update_data(self) -> PowervaultData:
         """Fetch data from API endpoint."""
         _LOGGER.debug("Updating data")
         for _ in range(2):
             try:
                 data = _fetch_powervault_data(
-                    self.client, self.unit_id, local_ip=self.local_ip
+                    self.client,
+                    self.unit_id,
+                    local_ip=self.local_ip,
+                    local_platform=self.local_platform,
                 )
             except ServerError as err:
                 raise UpdateFailed("Unable to fetch data from powervault") from err
@@ -415,7 +647,9 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
                     else True
                 )
                 api_totals = (
-                    _try_fetch_chart_totals(self.client) if use_history else None
+                    _try_fetch_chart_totals(self.client, self._local_tz)
+                    if use_history
+                    else None
                 )
                 data = self._accumulate(data, api_totals=api_totals)
 
@@ -437,8 +671,7 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
            dropped below the accumulator — indicating a mid-day history reset —
            the accumulator is kept, so the total never goes backwards.
         """
-        local_tz = ZoneInfo("Europe/London")
-        now = dt.now(local_tz)
+        now = dt.now(self._local_tz)
         today = now.date()
 
         # Reset at midnight.
@@ -492,18 +725,29 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
 
 
 def _fetch_powervault_data(  # pylint: disable=too-many-branches
-    client: PowerVault, unit_id: str | None, local_ip: str | None = None
+    client: PowerVault,
+    unit_id: str | None,
+    local_ip: str | None = None,
+    local_platform: str | None = None,
 ) -> PowervaultData:
     """Process and update powervault data."""
     if local_ip:
-        return _fetch_powervault_data_legacy(client)
+        if local_platform is None:
+            raise ServerError(
+                "Missing local platform for Powervault legacy telemetry fetch."
+            )
+        return _fetch_powervault_data_legacy(client, local_platform)
     return _fetch_powervault_data_cloud(client, unit_id)  # type: ignore[arg-type]
 
 
 def _fetch_powervault_data_legacy(  # pylint: disable=too-many-locals,too-many-statements
     client: PowerVault,
+    local_platform: str,
 ) -> PowervaultData:
     """Fetch data from a legacy P3 Powervault unit via the local REST API."""
+    if local_platform not in LEGACY_PLATFORMS:
+        raise ServerError("Legacy Powervault platform is not configured")
+
     data = client.get_data(None)
 
     _LOGGER.debug(f"Local data: {data}")
@@ -527,6 +771,13 @@ def _fetch_powervault_data_legacy(  # pylint: disable=too-many-locals,too-many-s
         raise ServerError(
             "Failed to get data from Powervault local API. Missing expected measurements."
         )
+
+    common_telemetry, battery_diagnostics, detailed_battery = (
+        _classify_legacy_telemetry(
+            telemetry,
+            local_platform,
+        )
+    )
 
     battery_state = "UNKNOWN"
     try:
@@ -596,6 +847,9 @@ def _fetch_powervault_data_legacy(  # pylint: disable=too-many-locals,too-many-s
         instant_solar=instant_solar_gen_w * milli,
         battery_state=battery_state,
         totals={},
+        common_telemetry=common_telemetry,
+        battery_diagnostics=battery_diagnostics,
+        detailed_battery=detailed_battery,
     )
 
 
@@ -694,4 +948,168 @@ def _fetch_powervault_data_cloud(  # pylint: disable=too-many-branches
         ),
         battery_state=battery_state,
         totals=totals,
+        common_telemetry={},
+        battery_diagnostics={},
+        detailed_battery={},
     )
+
+
+def _classify_legacy_telemetry(
+    telemetry: dict[str, object],
+    local_platform: str,
+) -> tuple[
+    dict[str, TelemetryValue],
+    dict[str, TelemetryValue],
+    dict[str, dict[str, TelemetryValue]],
+]:
+    """Split legacy telemetry into common, summary, and detailed groups."""
+    common_telemetry: dict[str, TelemetryValue] = {}
+    battery_diagnostics: dict[str, TelemetryValue] = {}
+    detailed_battery: dict[str, dict[str, TelemetryValue]] = {}
+
+    for key in (
+        "gridCurrent",
+        "batteryCurrent",
+        "inverterVoltage",
+        "inverterFrequency",
+        "maxChargePower",
+        "maxDischargePower",
+        "temperature",
+        "cpuTemperature",
+        "vocTemperature",
+        "vocHumidity",
+        "vocCO2",
+        "vocVOC",
+        "actualState",
+    ):
+        value = telemetry.get(key)
+        if isinstance(value, str | int | float):
+            common_telemetry[key] = value
+
+    soc_average = telemetry.get("socAverage")
+    if isinstance(soc_average, int | float):
+        battery_diagnostics["socAverage"] = soc_average
+
+    if local_platform == LEGACY_PLATFORM_P3:
+        battery_diagnostics.update(_build_p3_battery_diagnostics(telemetry))
+        detailed_battery.update(_build_p3_detailed_battery(telemetry))
+    elif local_platform == LEGACY_PLATFORM_P3X:
+        battery_diagnostics.update(_build_p3x_battery_diagnostics(telemetry))
+        detailed_battery.update(_build_p3x_detailed_battery(telemetry))
+
+    return common_telemetry, battery_diagnostics, detailed_battery
+
+
+def _build_summary_metrics(
+    prefix: str,
+    values: list[float],
+    *,
+    precision: int,
+) -> dict[str, float]:
+    """Return min/max/avg summary metrics for a numeric series."""
+    if not values:
+        return {}
+
+    return {
+        f"{prefix}_min": round(min(values), precision),
+        f"{prefix}_max": round(max(values), precision),
+        f"{prefix}_avg": round(sum(values) / len(values), precision),
+    }
+
+
+def _matching_numeric_values(
+    telemetry: dict[str, object],
+    pattern: re.Pattern[str],
+) -> list[float]:
+    """Return numeric telemetry values that match a measurement pattern."""
+    return [
+        float(value)
+        for key, value in telemetry.items()
+        if pattern.match(key) and isinstance(value, int | float)
+    ]
+
+
+def _build_p3_battery_diagnostics(
+    telemetry: dict[str, object],
+) -> dict[str, TelemetryValue]:
+    """Build summary battery telemetry for legacy P3 hardware."""
+    diagnostics: dict[str, TelemetryValue] = {}
+    diagnostics.update(
+        _build_summary_metrics(
+            "pack_temperature",
+            _matching_numeric_values(telemetry, P3_PACK_TEMPERATURE_RE),
+            precision=1,
+        )
+    )
+    diagnostics.update(
+        _build_summary_metrics(
+            "backplane_temperature",
+            _matching_numeric_values(telemetry, P3_BACKPLANE_TEMPERATURE_RE),
+            precision=1,
+        )
+    )
+    diagnostics.update(
+        _build_summary_metrics(
+            "string_cell_voltage",
+            _matching_numeric_values(telemetry, P3_STRING_VOLTAGE_RE),
+            precision=3,
+        )
+    )
+    diagnostics.update(
+        _build_summary_metrics(
+            "string_cell_temperature",
+            _matching_numeric_values(telemetry, P3_STRING_TEMPERATURE_RE),
+            precision=1,
+        )
+    )
+    return diagnostics
+
+
+def _build_p3_detailed_battery(
+    telemetry: dict[str, object],
+) -> dict[str, dict[str, TelemetryValue]]:
+    """Group detailed per-string telemetry for legacy P3 hardware."""
+    grouped: dict[str, dict[str, TelemetryValue]] = {}
+    for key, value in telemetry.items():
+        if not isinstance(value, int | float):
+            continue
+        if match := P3_STRING_CELL_RE.match(key):
+            grouped.setdefault(match.group(1), {})[key] = value
+    return grouped
+
+
+def _build_p3x_battery_diagnostics(
+    telemetry: dict[str, object],
+) -> dict[str, TelemetryValue]:
+    """Build summary battery telemetry for legacy P3X hardware."""
+    diagnostics: dict[str, TelemetryValue] = {}
+    for key in (
+        "pylontechMinCellVoltage",
+        "pylontechMaxCellVoltage",
+        "pylontechMinCellTemperature",
+        "pylontechMaxCellTemperature",
+        "pylontechAvgCellTemperature",
+        "pylontechMinBMSTemperature",
+        "pylontechMaxBMSTemperature",
+        "pylontechAvgBMSTemperature",
+        "pylontechMinMOSFETTemperature",
+        "pylontechMaxMOSFETTemperature",
+        "pylontechAvgMOSFETTemperature",
+    ):
+        value = telemetry.get(key)
+        if isinstance(value, int | float):
+            diagnostics[key] = value
+    return diagnostics
+
+
+def _build_p3x_detailed_battery(
+    telemetry: dict[str, object],
+) -> dict[str, dict[str, TelemetryValue]]:
+    """Group detailed per-module telemetry for legacy P3X hardware."""
+    grouped: dict[str, dict[str, TelemetryValue]] = {}
+    for key, value in telemetry.items():
+        if not isinstance(value, int | float):
+            continue
+        if match := P3X_MODULE_CELL_RE.match(key):
+            grouped.setdefault(match.group(1), {})[key] = value
+    return grouped

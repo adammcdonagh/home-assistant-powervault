@@ -25,7 +25,9 @@ async def async_setup_entry(
         async_add_entities([PowervaultHistorySwitch(powervault_data)])
 
 
-class PowervaultHistorySwitch(PowervaultEntity, SwitchEntity):
+class PowervaultHistorySwitch(  # pylint: disable=abstract-method
+    PowervaultEntity, SwitchEntity
+):
     """Switch to enable/disable API history collection for energy totals.
 
     When on (default), each poll attempts to fetch today's chart history from

@@ -59,7 +59,8 @@
       "init": {
         "title": "Powervault P3 options",
         "data": {
-          "poll_interval": "Polling interval (seconds)"
+          "poll_interval": "Polling interval (seconds)",
+          "enable_detailed_battery_telemetry": "Enable detailed battery telemetry"
         }
       }
     }

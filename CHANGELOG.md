@@ -1,3 +1,19 @@
+# v2.1.0
+
+### Changed
+
+- Bumped `powervaultpy` to `v1.1.5`
+- **Legacy local units now identify themselves more accurately.** The integration now detects whether a local Powervault is a `P3` or `P3X`, this is used to determine which battery sensors to read. The Home Assistant device model for local units now reflects the detected platform, for example `Powervault P3X`.
+
+### Added
+
+- **Expanded local telemetry for P3 and P3X units.** Local API users now get additional diagnostic sensors for inverter, current, temperature, battery health, and VOC sensor (not available for P3X units) data where the Powervault reports it.
+- **New "Battery Diagnostics" child device.** Additional battery-health sensors are now grouped under a separate child device to avoid cluttering the main Powervault device.
+- **P3X battery summary sensors.** P3X users now get summary battery diagnostics such as minimum and maximum cell voltage, minimum/maximum/average cell temperature, and minimum/maximum/average BMS and MOSFET temperatures.
+- **P3 battery summary sensors.** Legacy P3 users now get derived summary sensors for pack temperature, backplane temperature, and string cell voltage and temperature.
+- **Battery module total voltage sensors.** Local units now expose derived total-voltage sensors for each battery module or string on the Battery Diagnostics device. Two additional aggregate sensors are also provided by default: average battery module total voltage and maximum battery module total voltage.
+- **Optional detailed battery telemetry.** A new **Configure** option for local units lets advanced users enable detailed per-cell battery telemetry when needed. This create a unique device per battery module with it's own per-cell telemetry.
+
 # v2.0.1
 
 **NOTE** If Powervault local data is lost in the 1st 24 hrs of updating, the data may be incorrect. Data is collected in case of Powervault history failure from midnight. This will correct itself at midnight.

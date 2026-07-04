@@ -47,7 +47,7 @@ class PowervaultSelectEntity(
         """Return whether the entity is available."""
         return super().available and self.data.battery_state is not None
 
-    @callback  # type: ignore[misc]
+    @callback  # type: ignore[misc, untyped-decorator]
     def _async_update_attrs(self) -> None:
         """Update entity attributes."""
         if self.data.battery_state is not None:
@@ -55,7 +55,7 @@ class PowervaultSelectEntity(
         else:
             self._attr_current_option = None
 
-    @callback  # type: ignore[misc]
+    @callback  # type: ignore[misc, untyped-decorator]
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         self._async_update_attrs()

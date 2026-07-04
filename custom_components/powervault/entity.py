@@ -27,6 +27,7 @@ class PowervaultEntity(CoordinatorEntity[DataUpdateCoordinator[PowervaultData]])
         coordinator = powervault_data[POWERVAULT_COORDINATOR]
         assert coordinator is not None
         super().__init__(coordinator)
+        self._base_info = base_info
         self.powervault = powervault_data[POWERVAULT_API]
         # The serial numbers of the powervaults are unique to every site
         self.base_unique_id = "_".join(base_info.id)
@@ -36,6 +37,17 @@ class PowervaultEntity(CoordinatorEntity[DataUpdateCoordinator[PowervaultData]])
             model=base_info.model,
             name=base_info.id,
             sw_version=base_info.eprom_id,
+        )
+
+    def get_child_device_info(self, device_key: str, name: str) -> DeviceInfo:
+        """Return DeviceInfo for a child device linked to the main Powervault."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, f"{self.base_unique_id}_{device_key}")},
+            manufacturer=MANUFACTURER,
+            model=self._base_info.model,
+            name=f"{self._base_info.id} {name}",
+            sw_version=self._base_info.eprom_id,
+            via_device=(DOMAIN, self.base_unique_id),
         )
 
     @property
