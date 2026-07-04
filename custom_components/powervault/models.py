@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, TypeAlias, TypedDict
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from powervaultpy import PowerVault
@@ -11,6 +11,9 @@ from requests import Session
 
 if TYPE_CHECKING:
     from .__init__ import PowervaultDataManager
+
+
+TelemetryValue: TypeAlias = str | int | float
 
 
 @dataclass
@@ -43,6 +46,9 @@ class PowervaultData:  # pylint: disable=too-many-instance-attributes
     instant_solar: float
     battery_state: str | None
     totals: dict
+    common_telemetry: dict[str, TelemetryValue]
+    battery_diagnostics: dict[str, TelemetryValue]
+    detailed_battery: dict[str, dict[str, TelemetryValue]]
 
 
 class PowervaultRuntimeData(TypedDict):

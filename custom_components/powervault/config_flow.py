@@ -15,11 +15,16 @@ from powervaultpy import PowerVault
 from powervaultpy.powervault import RequestError, ServerError
 
 from .const import (
+    CONF_ENABLE_DETAILED_BATTERY_TELEMETRY,
     CONF_IP_ADDRESS,
     CONF_MODEL,
+    CONF_PLATFORM,
     CONF_POLL_INTERVAL,
+    DEFAULT_ENABLE_DETAILED_BATTERY_TELEMETRY,
     DEFAULT_POLL_INTERVAL,
     DOMAIN,
+    LEGACY_PLATFORM_P3,
+    LEGACY_PLATFORMS,
     MAX_POLL_INTERVAL,
     MIN_POLL_INTERVAL,
     MODEL_LEGACY_P3,
@@ -90,16 +95,30 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     return {"units": units_, "account_id": account_id}
 
 
-async def validate_legacy_unit(hass: HomeAssistant, ip_address: str) -> None:
-    """Validate connection to a legacy P3 Powervault unit via the health endpoint."""
+def _normalize_legacy_platform(platform: str | None) -> str:
+    """Validate and normalize the reported legacy platform string."""
+    if platform is None:
+        raise CannotConnect
+
+    if (normalized := platform.strip().lower()) not in LEGACY_PLATFORMS:
+        raise CannotConnect
+
+    return normalized
+
+
+async def validate_legacy_unit(hass: HomeAssistant, ip_address: str) -> str:
+    """Validate a legacy local unit and return its stored platform type."""
     client = PowerVault(local_ip=ip_address)
     try:
         response = await hass.async_add_executor_job(client.get_health)
+        platform = await hass.async_add_executor_job(client.get_platform)
     except (RequestError, ServerError) as exc:
         raise CannotConnect from exc
 
     if response != {"status": "ok"}:
         raise CannotConnect
+
+    return _normalize_legacy_platform(platform)
 
 
 class PowervaultOptionsFlow(OptionsFlow):  # pylint: disable=too-few-public-methods
@@ -119,6 +138,10 @@ class PowervaultOptionsFlow(OptionsFlow):  # pylint: disable=too-few-public-meth
         current = self._config_entry.options.get(
             CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL
         )
+        current_detailed = self._config_entry.options.get(
+            CONF_ENABLE_DETAILED_BATTERY_TELEMETRY,
+            DEFAULT_ENABLE_DETAILED_BATTERY_TELEMETRY,
+        )
         schema = vol.Schema(
             {
                 vol.Required(CONF_POLL_INTERVAL, default=current): selector(
@@ -132,6 +155,10 @@ class PowervaultOptionsFlow(OptionsFlow):  # pylint: disable=too-few-public-meth
                         }
                     }
                 ),
+                vol.Required(
+                    CONF_ENABLE_DETAILED_BATTERY_TELEMETRY,
+                    default=current_detailed,
+                ): selector({"boolean": {}}),
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)
@@ -140,7 +167,7 @@ class PowervaultOptionsFlow(OptionsFlow):  # pylint: disable=too-few-public-meth
 class PowervaultConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
     """Handle a config flow for Powervault."""
 
-    VERSION = 2
+    VERSION = 3
 
     @staticmethod
     def async_get_options_flow(
@@ -191,7 +218,9 @@ class PowervaultConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
         errors: dict[str, str] = {}
         if user_input is not None:
             try:
-                await validate_legacy_unit(self.hass, user_input[CONF_IP_ADDRESS])
+                platform = await validate_legacy_unit(
+                    self.hass, user_input[CONF_IP_ADDRESS]
+                )
             except CannotConnect:
                 errors["base"] = "cannot_connect"
             except Exception:  # pylint: disable=broad-except
@@ -207,6 +236,7 @@ class PowervaultConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
                         **entry.data,
                         CONF_MODEL: MODEL_LEGACY_P3,
                         CONF_IP_ADDRESS: user_input[CONF_IP_ADDRESS],
+                        CONF_PLATFORM: platform,
                     },
                 )
                 return self.async_abort(reason="reauth_successful")
@@ -236,7 +266,9 @@ class PowervaultConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
         errors: dict[str, str] = {}
         if user_input is not None:
             try:
-                await validate_legacy_unit(self.hass, user_input[CONF_IP_ADDRESS])
+                platform = await validate_legacy_unit(
+                    self.hass, user_input[CONF_IP_ADDRESS]
+                )
             except CannotConnect:
                 errors["base"] = "cannot_connect"
             except Exception:  # pylint: disable=broad-except
@@ -244,10 +276,15 @@ class PowervaultConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(
-                    title="Powervault P3",
+                    title=(
+                        "Powervault P3"
+                        if platform == LEGACY_PLATFORM_P3
+                        else "Powervault P3X"
+                    ),
                     data={
                         CONF_MODEL: MODEL_LEGACY_P3,
                         CONF_IP_ADDRESS: user_input[CONF_IP_ADDRESS],
+                        CONF_PLATFORM: platform,
                     },
                 )
 

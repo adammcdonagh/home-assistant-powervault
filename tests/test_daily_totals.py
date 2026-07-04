@@ -35,6 +35,9 @@ def _make_data() -> PowervaultData:
         instant_solar=0,
         battery_state="normal",
         totals={},
+        common_telemetry={},
+        battery_diagnostics={},
+        detailed_battery={},
     )
 
 
