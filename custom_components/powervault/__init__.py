@@ -554,6 +554,7 @@ class PowervaultDataManager:  # pylint: disable=too-few-public-methods,too-many-
         client: PowerVault,
         unit_id: str | None,
         runtime_data: PowervaultRuntimeData,
+        *,
         local_ip: str | None = None,
         local_platform: str | None = None,
         config_entry: ConfigEntry | None = None,
@@ -731,19 +732,21 @@ def _fetch_powervault_data(  # pylint: disable=too-many-branches
 ) -> PowervaultData:
     """Process and update powervault data."""
     if local_ip:
+        if local_platform is None:
+            raise ServerError(
+                "Missing local platform for Powervault legacy telemetry fetch."
+            )
         return _fetch_powervault_data_legacy(client, local_platform)
     return _fetch_powervault_data_cloud(client, unit_id)  # type: ignore[arg-type]
 
 
 def _fetch_powervault_data_legacy(  # pylint: disable=too-many-locals,too-many-statements
     client: PowerVault,
-    local_platform: str | None,
+    local_platform: str,
 ) -> PowervaultData:
     """Fetch data from a legacy P3 Powervault unit via the local REST API."""
     if local_platform not in LEGACY_PLATFORMS:
         raise ServerError("Legacy Powervault platform is not configured")
-
-    legacy_platform = local_platform
 
     data = client.get_data(None)
 
@@ -772,7 +775,7 @@ def _fetch_powervault_data_legacy(  # pylint: disable=too-many-locals,too-many-s
     common_telemetry, battery_diagnostics, detailed_battery = (
         _classify_legacy_telemetry(
             telemetry,
-            legacy_platform,
+            local_platform,
         )
     )
 
