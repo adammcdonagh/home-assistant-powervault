@@ -1,3 +1,9 @@
+# v2.2.0
+
+### Added
+
+- Added a new button entity to allow clearing of any current overrides.
+
 # v2.1.0
 
 ### Changed
