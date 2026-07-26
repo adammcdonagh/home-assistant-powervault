@@ -21,7 +21,15 @@ async def async_setup_entry(
     powervault_data: PowervaultRuntimeData = hass.data[DOMAIN][config_entry.entry_id]
 
     if config_entry.data.get(CONF_IP_ADDRESS):
-        async_add_entities([PowervaultResetTotalsButton(powervault_data)])
+        async_add_entities(
+            [
+                PowervaultResetTotalsButton(powervault_data),
+                PowervaultCancelOverrideButton(powervault_data),
+            ]
+        )
+        return
+
+    async_add_entities([PowervaultCancelOverrideButton(powervault_data)])
 
 
 class PowervaultResetTotalsButton(PowervaultEntity, ButtonEntity):
@@ -51,4 +59,34 @@ class PowervaultResetTotalsButton(PowervaultEntity, ButtonEntity):
     async def _async_reset_and_refresh(self) -> None:
         """Run the cached total reset flow."""
         await self._manager.async_reset_cached_totals()
+        await self.coordinator.async_request_refresh()
+
+
+class PowervaultCancelOverrideButton(PowervaultEntity, ButtonEntity):
+    """Button to cancel any active battery override."""
+
+    _attr_name = "Powervault Cancel Override"
+    _attr_icon = "mdi:close-circle-outline"
+
+    @property
+    def unique_id(self) -> str:
+        """Device unique id."""
+        return f"{self.base_unique_id}_cancel_override"
+
+    def press(self) -> None:
+        """Cancel any active override and schedule a refresh."""
+        self.hass.async_create_task(self.async_press())
+
+    async def async_press(self) -> None:
+        """Cancel any active override and refresh state."""
+        unit_id = None
+        if not self.coordinator.config_entry.data.get(CONF_IP_ADDRESS):
+            unit_id = self.coordinator.config_entry.data["unit_id"]
+
+        await self.coordinator.hass.async_add_executor_job(
+            self.powervault.set_battery_state,
+            unit_id,
+            "normal",
+            True,
+        )
         await self.coordinator.async_request_refresh()
